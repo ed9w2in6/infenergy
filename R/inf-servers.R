@@ -1,6 +1,4 @@
-source("plotfuns.R")
 cachedir <- "cache"
-dir.create(cachedir)
 
 ##' Get one day's data from an informatics server
 ##'
@@ -10,8 +8,12 @@ dir.create(cachedir)
 ##' @param cache If \code{TRUE}, cache data
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
+##' @export
 get.data <- function(date, ups="forumA", cache=TRUE) {
 
+  if (!file.exists(cachedir)) 
+    dir.create(cachedir)
+  
   ## Read from cache - if it exists
   cachefile <- file.path(cachedir,
                          paste(ups, "_raw_", strftime(date, "%F"), ".csv", sep=""))
