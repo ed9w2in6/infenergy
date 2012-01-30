@@ -1,4 +1,4 @@
-get.hh.data <- function(file="111010 Informatics HH Data 10-11.csv") {
+get.uni.data <- function(file="111010 Informatics HH Data 10-11.csv") {
   dat <- read.csv(file)
   colnames(dat) <- c("Date", "kWh")
   dat$Date <- strptime(dat$Date, "%d/%m/%Y")
@@ -6,7 +6,14 @@ get.hh.data <- function(file="111010 Informatics HH Data 10-11.csv") {
   return(dat)
 }
 
-get.hh.half.hourly.data <- function(file="111010 Informatics HH Data 10-11.csv") {
+##' @title Get half-hourly data from the University Energy Office's data files
+##' @param file Input file
+##' @return Data frame with columns \code{Time} (the centre of the
+##' time period) and \code{kWh} (energy use in kWh in the half hour
+##' centred on \code{Time})
+##' @author David Sterratt
+##' @export
+get.uni.half.hourly.data <- function(file="111010 Informatics HH Data 10-11.csv") {
   dat <- read.csv(file)
   dat <- dat[dat[,1]!="Maximum",]
   dat <- dat[dat[,1]!="Aggregate",]
@@ -20,8 +27,15 @@ get.hh.half.hourly.data <- function(file="111010 Informatics HH Data 10-11.csv")
   return(dat)
 }
 
-get.hh.data.hourly <- function(file="111010 Informatics HH Data 10-11.csv") {
-  dat <- get.hh.half.hourly.data(file=file)
+##' @title Get hourly data from the University Energy Office's data files
+##' @param file Input file
+##' @return Data frame with columns \code{Time} (the centre of the
+##' time period) and \code{kWh} (energy use in kWh in the hour
+##' centred on \code{Time})
+##' @author David Sterratt
+##' @export
+get.uni.data.hourly <- function(file="111010 Informatics HH Data 10-11.csv") {
+  dat <- get.uni.half.hourly.data(file=file)
   fdat <- dat[seq(2,nrow(dat),2),]
   fdat[,2] <- fdat[,2] + dat[seq(1,nrow(dat),2),2]
   fdat[,1] <- dat[seq(1,nrow(dat),2),1] + 15*60
@@ -29,8 +43,8 @@ get.hh.data.hourly <- function(file="111010 Informatics HH Data 10-11.csv") {
   return(fdat)
 }
 
-get.hh.data.daily <- function(from, to) {
-  dat <- get.hh.data()
+get.uni.data.daily <- function(from, to) {
+  dat <- get.uni.data()
   return(subset(dat,
                 Date >= as.POSIXct(from) &
                 Date <= as.POSIXct(to)))

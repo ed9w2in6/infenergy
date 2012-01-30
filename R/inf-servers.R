@@ -9,7 +9,7 @@ cachedir <- "cache"
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.data <- function(date, ups="forumA", cache=TRUE) {
+get.inf.data <- function(date, ups="forumA", cache=TRUE) {
 
   if (!file.exists(cachedir)) 
     dir.create(cachedir)
@@ -52,7 +52,6 @@ get.data <- function(date, ups="forumA", cache=TRUE) {
 
 ##' Get data in hourly chunks from an Informatics energy log.
 ##'
-##' .. content for \details{} ..
 ##' @title Get data in hourly chunks from an informatics server
 ##' @param to Date from which to collect data
 ##' @param from Date to which to collect data
@@ -61,7 +60,8 @@ get.data <- function(date, ups="forumA", cache=TRUE) {
 ##' interval, \code{kWh} energy used in that interval in kWh and
 ##' \code{server} the name of the server to which the row relates
 ##' @author David Sterratt
-get.data.hourly <- function(from, to,
+##' @export
+get.inf.data.hourly <- function(from, to,
                             ups="forumA") {
   ## Create list of dates from which to get data. We need to get the
   ## extra day for the sake of BST, as we'd like to have all day
@@ -73,7 +73,7 @@ get.data.hourly <- function(from, to,
 
   for (date in dates) {
     ## Get the data for that date and server
-    gd <- get.data(date, ups)
+    gd <- get.inf.data(date, ups)
     d <- rbind(d, gd)
   }
 
@@ -95,7 +95,7 @@ get.total.hourly <- function(from, to,
                                "serverL", "serverR")) {
   dat <- NULL
   for (ups in upss) {
-    d <- get.data.hourly(from, to, ups)
+    d <- get.inf.data.hourly(from, to, ups)
     d$ups <- ups
     dat <- rbind(dat, d)
   }
@@ -104,9 +104,9 @@ get.total.hourly <- function(from, to,
 }
 
 
-get.data.daily <- function(from, to, ups="forumA") {
+get.inf.data.daily <- function(from, to, ups="forumA") {
 
-  d <- get.data.hourly(from, to, ups)
+  d <- get.inf.data.hourly(from, to, ups)
 
   ## Bin into daily chunks
   dates <- seq.POSIXt(as.POSIXct(from, tz="GMT"),
@@ -124,7 +124,7 @@ get.total.daily <- function(from, to,
                               "serverL", "serverR")) {
   dat <- NULL
   for (ups in upss) {
-    d <- get.data.daily(from, to, ups)
+    d <- get.inf.data.daily(from, to, ups)
     d$ups <- ups
     dat <- rbind(dat, d)
   }
@@ -133,10 +133,10 @@ get.total.daily <- function(from, to,
 }
 
 
-## dat <- get.data("2011-07-07", "forumA", TRUE)
-## dat <- get.data.hourly("2011-07-20", to="2011-07-25", ups="forumA")
+## dat <- get.inf.data("2011-07-07", "forumA", TRUE)
+## dat <- get.inf.data.hourly("2011-07-20", to="2011-07-25", ups="forumA")
 ## png(file="forumA-sample.png", width=800, height=600)
 ## plot.energy(dat)
 ## dev.off()
-## #dat <- get.data.hourly("2011-07-20", to="2011-09-09")
+## #dat <- get.inf.data.hourly("2011-07-20", to="2011-09-09")
 

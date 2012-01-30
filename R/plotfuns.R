@@ -24,19 +24,15 @@ plot.energy <- function(dat, new=TRUE, ...) {
 
 }
 
-##' <description>
-##'
-##' <details>
-##' @title 
+##' @title Step plot
 ##' @param x Centres of data
 ##' @param y Heights of data at centres
 ##' @param xlab 
 ##' @param ylab 
 ##' @param col 
-##' @return 
 ##' @author David Sterratt
 stepplot <- function(x, y, xlab="Time", ylab="kWh per hour",
-                     col=c("red", "orange", "yellow"), ...) {
+                     col="white", ...) {
   ## Find breaks
   n <- length(x)
   ## Create extra centres
@@ -61,8 +57,9 @@ stepplot <- function(x, y, xlab="Time", ylab="kWh per hour",
   }
 }
 
-plot.hourly <- function(Time, dat) {
-  stepplot(Time, dat, xaxt="n")
+plot.hourly <- function(Time, dat, col) {
+  print(col)
+  stepplot(Time, dat, xaxt="n", col=col)
     ## Prettier labels
   t0 <- as.POSIXlt(Time[1] - 30*60) 
   print(t0)
