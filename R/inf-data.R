@@ -61,7 +61,7 @@ get.inf.data <- function(date, ups="forumA", cache=TRUE) {
 ##' \code{server} the name of the server to which the row relates
 ##' @author David Sterratt
 ##' @export
-get.inf.data.hourly <- function(from, to,
+get.inf.ups.data.hourly <- function(from, to,
                             ups="forumA") {
   ## Create list of dates from which to get data. We need to get the
   ## extra day for the sake of BST, as we'd like to have all day
@@ -90,12 +90,21 @@ get.inf.data.hourly <- function(from, to,
   return(d)
 }
 
-get.total.hourly <- function(from, to,
-                             upss=c("forumA", "forumB",
-                               "serverL", "serverR")) {
+##' @title Get hourly data from the Informatics server logs
+##' @param from Date from which to collect data
+##' @param to Date to which to collect data
+##' @param upss Vector of upss from which to collect data
+##' @return Data frame with columns \code{Time} (the centre of the
+##' time period) and \code{kWh} (energy use in kWh in the hour
+##' centred on \code{Time})
+##' @author David Sterratt
+##' @export
+get.inf.data.hourly <- function(from, to,
+                                 upss=c("forumA", "forumB",
+                                   "serverL", "serverR")) {
   dat <- NULL
   for (ups in upss) {
-    d <- get.inf.data.hourly(from, to, ups)
+    d <- get.inf.ups.data.hourly(from, to, ups)
     d$ups <- ups
     dat <- rbind(dat, d)
   }
@@ -106,7 +115,7 @@ get.total.hourly <- function(from, to,
 
 get.inf.data.daily <- function(from, to, ups="forumA") {
 
-  d <- get.inf.data.hourly(from, to, ups)
+  d <- get.inf.ups.data.hourly(from, to, ups)
 
   ## Bin into daily chunks
   dates <- seq.POSIXt(as.POSIXct(from, tz="GMT"),
@@ -119,7 +128,7 @@ get.inf.data.daily <- function(from, to, ups="forumA") {
   return(d)
 }
 
-get.total.daily <- function(from, to,
+get.inf.total.daily <- function(from, to,
                             upss=c("forumA", "forumB",
                               "serverL", "serverR")) {
   dat <- NULL

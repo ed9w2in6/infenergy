@@ -57,10 +57,18 @@ stepplot <- function(x, y, xlab="Time", ylab="kWh per hour",
   }
 }
 
-plot.hourly <- function(Time, dat, col) {
-  print(col)
+##' @title Plot energy data hourly 
+##' @param dat Data frame of hourly data with first column containing Time
+##' @param col Colours to plot non-time columns
+##' @author David Sterratt
+##' @export
+plot.hourly <- function(dat, col) {
+  dat <- data.frame(dat)
+  Time <- dat$Time
+  dat <- t(subset(dat, select=-Time))
+  
   stepplot(Time, dat, xaxt="n", col=col)
-    ## Prettier labels
+  ## Prettier labels
   t0 <- as.POSIXlt(Time[1] - 30*60) 
   print(t0)
   t1 <- as.POSIXlt(Time[length(Time)] + 30*60)
