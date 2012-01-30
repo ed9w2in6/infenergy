@@ -11,6 +11,6 @@ Date: 2012-01-30
 Depends:
     R (>= 2.10.0)
 Collate:
-    'hh-data.R'
-    'inf-servers.R'
     'plotfuns.R'
+    'inf-data.R'
+    'uni-data.R'
