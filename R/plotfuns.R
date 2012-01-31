@@ -64,6 +64,7 @@ stepplot <- function(x, y, xlab="Time", ylab="kWh per hour",
 ##' @param col Colours to plot non-time columns
 ##' @param ylim Specify ylim
 ##' @author David Sterratt
+##' @method plot hourly
 ##' @export
 plot.hourly <- function(dat, col, ylim=NULL) {
   dat <- data.frame(dat)

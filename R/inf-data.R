@@ -109,6 +109,9 @@ get.inf.data.hourly <- function(from, to,
     dat <- rbind(dat, d)
   }
   ad <- aggregate(kWh ~ Time, data=dat, FUN=sum)
+  attr(ad, from) <- from
+  attr(ad, to) <- to
+  class(ad) <- c("hourly", "data.frame")
   return(ad)
 }
 
