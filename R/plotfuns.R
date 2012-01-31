@@ -32,7 +32,7 @@ plot.energy <- function(dat, new=TRUE, ...) {
 ##' @param col 
 ##' @author David Sterratt
 stepplot <- function(x, y, xlab="Time", ylab="kWh per hour",
-                     col="white", ...) {
+                     col="white", ylim=NULL, ...) {
   ## Find breaks
   n <- length(x)
   ## Create extra centres
@@ -42,7 +42,9 @@ stepplot <- function(x, y, xlab="Time", ylab="kWh per hour",
 
   ## Find totals
   yi <- apply(y, 2, sum)
-  plot(NA, NA, xlim=range(x), ylim=c(0, max(yi)),
+  if (is.null(ylim))
+    ylim=c(0, max(yi))
+  plot(NA, NA, xlim=range(x), ylim=ylim,
        xlab=xlab, ylab=ylab, ...)
 
   for (i in nrow(y):1) {
@@ -60,21 +62,21 @@ stepplot <- function(x, y, xlab="Time", ylab="kWh per hour",
 ##' @title Plot energy data hourly 
 ##' @param dat Data frame of hourly data with first column containing Time
 ##' @param col Colours to plot non-time columns
+##' @param ylim Specify ylim
 ##' @author David Sterratt
 ##' @export
-plot.hourly <- function(dat, col) {
+plot.hourly <- function(dat, col, ylim=NULL) {
   dat <- data.frame(dat)
   Time <- dat$Time
   dat <- t(subset(dat, select=-Time))
-  
-  stepplot(Time, dat, xaxt="n", col=col)
+
+  if (is.null(ylim))
+    ylim <- c(0, max(apply(dat, 2, sum)))
+  stepplot(Time, dat, xaxt="n", col=col, ylim=ylim)
   ## Prettier labels
   t0 <- as.POSIXlt(Time[1] - 30*60) 
-  print(t0)
   t1 <- as.POSIXlt(Time[length(Time)] + 30*60)
-  print(t1)
   locs <- seq(t0, t1, by=24*60*60)
-  ylim <- c(0, max(apply(dat, 2, sum)))
   lines(rbind(locs, locs, NA), rep(c(ylim, NA), length(locs)))
 
   ##rect(locs[c(1, 3, 5, 7)], 0, locs[c(2, 4, 6, 8)], max(ylim),
