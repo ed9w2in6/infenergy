@@ -14,3 +14,4 @@ Collate:
     'plotfuns.R'
     'inf-data.R'
     'uni-data.R'
+    'combine-data.R'

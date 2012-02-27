@@ -67,8 +67,8 @@ stepplot <- function(x, y, xlab="Time", ylab="kWh per hour",
 ##' @method plot hourly
 ##' @export
 plot.hourly <- function(dat, col, ylim=NULL) {
-  from <- attr(dat, from)
-  to <- attr(dat, to)
+  from <- attr(dat, "from")
+  to <- attr(dat, "to")
   Time <- dat$Time
   dat <- t(subset(dat, select=-Time))
 

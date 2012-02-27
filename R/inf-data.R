@@ -53,8 +53,8 @@ get.inf.data <- function(date, ups="forumA", cache=TRUE) {
 ##' Get data in hourly chunks from an Informatics energy log.
 ##'
 ##' @title Get data in hourly chunks from an informatics server
-##' @param to Date from which to collect data
-##' @param from Date to which to collect data
+##' @param from Date from which to collect data
+##' @param to Date to which to collect data
 ##' @param upss Vector of upss from which to collect data
 ##' @return Data frame containing the columns \code{Time} of centre of
 ##' interval, \code{kWh} energy used in that interval in kWh and
@@ -109,8 +109,8 @@ get.inf.data.hourly <- function(from, to,
     dat <- rbind(dat, d)
   }
   ad <- aggregate(kWh ~ Time, data=dat, FUN=sum)
-  attr(ad, from) <- from
-  attr(ad, to) <- to
+  attr(ad, "from") <- from
+  attr(ad, "to") <- to
   class(ad) <- c("hourly", "data.frame")
   return(ad)
 }
