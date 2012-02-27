@@ -82,11 +82,16 @@ get.inf.ups.data.hourly <- function(from, to,
                       to=as.POSIXct(to, tz="GMT")+24*3600, by="1 hour")
   ## Create bins in which to aggregate the data
   bins <- cut(d$Time, times, labels=times[-1]-30*60)
-
-  ## agregate the data
-  ad <- aggregate(kWh ~ bins, data=d, FUN=mean)
-  d <- with(ad, data.frame(Time=as.POSIXct(bins), kWh=kWh))
-  
+  if (any(is.na(bins))) {
+    warning(paste("Some data points may be missing from", ups, "data between", from, "and", to))
+  }
+  if (any(!is.na(bins))) {
+    ## agregate the data
+    ad <- aggregate(kWh ~ bins, data=d, FUN=mean)
+    d <- with(ad, data.frame(Time=as.POSIXct(bins), kWh=kWh))
+  } else {
+     d <- data.frame(Time=as.POSIXct(times[-1]-30*60), kWh=0)
+  }
   return(d)
 }
 
