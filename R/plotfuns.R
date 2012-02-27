@@ -31,7 +31,7 @@ plot.energy <- function(dat, new=TRUE, ...) {
 ##' @param ylab 
 ##' @param col 
 ##' @author David Sterratt
-stepplot <- function(x, y, xlab="Time", ylab="kWh per hour",
+stepplot <- function(x, y, xlab="Time", ylab="kW",
                      col="white", ylim=NULL, ...) {
   ## Find breaks
   n <- length(x)
@@ -51,8 +51,6 @@ stepplot <- function(x, y, xlab="Time", ylab="kWh per hour",
     yi <- yi 
     xs <- as.vector(rbind(breaks, breaks))
     ys <- as.vector(rbind(c(0, yi), c(yi, 0)))
-    print(length(xs))
-    print(length(ys))
     polygon(xs, ys, col=col[i], border=NA)
     lines(xs[-c(1, length(xs))], ys[-c(1,length(ys))])
     yi <- yi - y[i,]
