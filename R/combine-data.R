@@ -6,25 +6,61 @@
 ##' components and the residual Other energy use
 ##' @author David Sterratt
 ##' @export
-combine.data.hourly <- function(comps=list(), tot) {
-  dat <- data.frame(Time=tot[,"Time"])
-  other <- tot$kWh
+combine.data.hourly <- function(comps=list(), tot=NA) {
+  if (!is.na(tot)) {
+    dat <- data.frame(Time=tot[,"Time"])
+    other <- tot$kWh
+  } else {
+    dat <- data.frame(Time=comps[[1]][,"Time"])
+  }
   for (n in names(comps)) {
     comp <- comps[[n]]
-    if (attr(comp, "from") != attr(tot, "from")) {
-      stop(paste("From date of ", n, "component doesn't match from date of total"))
+    if (!is.na(tot)) {
+      if (attr(comp, "from") != attr(tot, "from")) {
+        stop(paste("From date of ", n, "component doesn't match from date of total"))
+      }
+      if (attr(comp, "to") != attr(tot, "to")) {
+        stop(paste("To date of", n, "component doesn't match to date of total"))
+      }
+      other <- other - comp$kWh      
     }
-    if (attr(comp, "to") != attr(tot, "to")) {
-      stop(paste("To date of", n, "component doesn't match to date of total"))
-    }
-    other <- other - comp$kWh
     col <- data.frame(comp$kWh)
     colnames(col) <- n
     dat <- data.frame(dat, col)
   }
-  dat <- data.frame(dat, Other=other)
-  attr(dat, "from") <- attr(tot, "from")
-  attr(dat, "to")   <- attr(tot, "to")
+  if (!is.na(tot)) {
+    dat <- data.frame(dat, Other=other)
+    attr(dat, "from") <- attr(tot, "from")
+    attr(dat, "to")   <- attr(tot, "to")
+  } else  {
+    attr(dat, "from") <- attr(comps[[1]], "from")
+    attr(dat, "to")   <- attr(comps[[1]], "to")
+  }
   class(dat) <- c("hourly", "data.frame")
   return(dat)
+}
+
+##' @export
+group.data.daily <- function(dat, from=NULL, to=NULL) {
+  if (is.null(from)) {
+    from <- attr(dat, "from")
+  }
+  if (is.null(to)) {
+    to <- attr(dat, "to")
+  }
+
+  dates <- seq.POSIXt(as.POSIXct(from, tz="GMT"),
+                      to=as.POSIXct(to, tz="GMT")+24*3600, by="1 day")
+  bins <- cut(dat$Time, dates, labels=seq.Date(as.Date(from), as.Date(to), by=1))
+  dat$Time <- NULL
+  ad <- aggregate(. ~ bins, data=dat, FUN=sum)
+  ad <- cbind(Time=as.POSIXct(ad$bins), ad)
+  ad$bins <- NULL
+  class(ad) <- c("daily", "data.frame")
+  attr(ad, "from") <- from
+  attr(ad, "to")   <- to
+
+  return(ad)
+  #d <- with(ad, data.frame(Date=as.POSIXct(bins), kWh=kWh))
+  #return(cbind(Time, ad))
 }

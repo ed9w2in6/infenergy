@@ -1,15 +1,17 @@
 cachedir <- "cache"
 
-##' Get one day's data from an informatics server
+##' Get one day's data from an Informatics server
 ##'
 ##' @title Get one day's data from a UPS
 ##' @param date Day on which to get data
 ##' @param ups UPS from which to get data
-##' @param cache If \code{TRUE}, cache data
+##' @param cache If \code{prefer}, use cached data if available, but
+##' otherwise use source data. If \code{use}, only used cached data,
+##' and don't try source data. If \code{none}, don't use.
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.inf.data <- function(date, ups="forumA", cache=TRUE) {
+get.inf.data <- function(date, ups="forumA", cache="prefer") {
 
   if (!file.exists(cachedir)) 
     dir.create(cachedir)
@@ -17,12 +19,16 @@ get.inf.data <- function(date, ups="forumA", cache=TRUE) {
   ## Read from cache - if it exists
   cachefile <- file.path(cachedir,
                          paste(ups, "_raw_", strftime(date, "%F"), ".csv", sep=""))
-  if (cache & file.exists(cachefile)) {
+  if (cache != "none" & file.exists(cachefile)) {
     dat <- read.csv(cachefile)
-    dat$Time <- as.POSIXct(dat$Time)
+    dat$Time <- as.POSIXct(dat$Time, tz="GMT")
     return(dat)
   }
 
+  if (cache == "use") {
+    return(NULL)
+  }
+  
   ## Otherwise, get data from system
   base.url <- "http://netmon.inf.ed.ac.uk/raw-UPS"
   file <- file.path(base.url,
@@ -62,7 +68,7 @@ get.inf.data <- function(date, ups="forumA", cache=TRUE) {
 ##' @author David Sterratt
 ##' @export
 get.inf.ups.data.hourly <- function(from, to,
-                            ups="forumA") {
+                            ups="forumA", ...) {
   ## Create list of dates from which to get data. We need to get the
   ## extra day for the sake of BST, as we'd like to have all day
   ## boundaries on GMT.
@@ -73,7 +79,7 @@ get.inf.ups.data.hourly <- function(from, to,
 
   for (date in dates) {
     ## Get the data for that date and server
-    gd <- get.inf.data(date, ups)
+    gd <- get.inf.data(date, ups, ...)
     d <- rbind(d, gd)
   }
 
@@ -106,10 +112,10 @@ get.inf.ups.data.hourly <- function(from, to,
 ##' @export
 get.inf.data.hourly <- function(from, to,
                                  upss=c("forumA", "forumB",
-                                   "serverL", "serverR")) {
+                                   "serverL", "serverR"), ...) {
   dat <- NULL
   for (ups in upss) {
-    d <- get.inf.ups.data.hourly(from, to, ups)
+    d <- get.inf.ups.data.hourly(from, to, ups, ...)
     d$ups <- ups
     dat <- rbind(dat, d)
   }
@@ -129,7 +135,8 @@ get.inf.data.daily <- function(from, to, ups="forumA") {
   dates <- seq.POSIXt(as.POSIXct(from, tz="GMT"),
                       to=as.POSIXct(to, tz="GMT")+24*3600, by="1 day")
 
-  bins <- cut(d$Time, dates, labels=seq.Date(as.Date(from), as.Date(to), by=1))
+  bins <- cut(dat$Time, dates, labels=seq.Date(as.Date(from), as.Date(to), by=1))
+
   ad <- aggregate(kWh ~ bins, data=d, FUN=sum)
   d <- with(ad, data.frame(Date=as.POSIXct(bins), kWh=kWh))
   

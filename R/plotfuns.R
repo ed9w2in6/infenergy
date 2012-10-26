@@ -87,3 +87,36 @@ plot.hourly <- function(dat, col, ylim=NULL) {
   axis(1, at=locs, labels=weekdays(locs, TRUE), tcl=0)
   lines(rbind(locs, locs, NA), rep(c(ylim, NA), length(locs)), col="gray")
 }
+
+##' @title Plot energy data daily 
+##' @param dat Data frame of daily data with first column containing Time
+##' @param col Colours to plot non-time columns
+##' @param ylim Specify ylim
+##' @author David Sterratt
+##' @method plot daily
+##' @export
+plot.daily <- function(dat, col, ylim=NULL, per.hour=FALSE) {
+  from <- attr(dat, "from")
+  to <- attr(dat, "to")
+  Time <- dat$Time
+  dat <- t(subset(dat, select=-Time))
+  if (per.hour) {
+    dat <- dat/24
+  }
+  
+  if (is.null(ylim))
+    ylim <- c(0, max(apply(dat, 2, sum)))
+  ylab <- ifelse(per.hour, "kW", "kWh per day")
+  stepplot(Time, dat, xaxt="n", col=col, ylim=ylim,
+       ylab=ylab, main=paste(from, "to", to))
+
+  ## Lines indicating start of month
+  t0 <- as.POSIXlt(Time[1]) 
+  t1 <- as.POSIXlt(Time[length(Time)] + 24*60*60)
+  locs <- as.POSIXct(unique(strftime(Time, "%Y-%m-01")))
+  lines(rbind(locs, locs, NA), rep(c(ylim, NA), length(locs)))
+  axis(1, at=locs, labels=NA)
+  ## Positions for month labels
+  locs <- locs + 15*24*60*60
+  axis(1, at=locs, labels=strftime(locs, "%b"), tick=FALSE)
+}
