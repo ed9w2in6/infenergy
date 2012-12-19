@@ -26,10 +26,11 @@ plot.energy <- function(dat, new=TRUE, ...) {
 
 ##' @title Step plot
 ##' @param x Centres of data
-##' @param y Heights of data at centres
-##' @param xlab 
-##' @param ylab 
-##' @param col 
+##' @param y Matrix of heights of data at centres. One row per set of
+##' data.
+##' @param xlab X-axis label
+##' @param ylab Y-axis label
+##' @param col Vector of colours to plot each set of data.
 ##' @author David Sterratt
 stepplot <- function(x, y, xlab="Time", ylab="kW",
                      col="white", ylim=NULL, ...) {
@@ -48,7 +49,6 @@ stepplot <- function(x, y, xlab="Time", ylab="kW",
        xlab=xlab, ylab=ylab, ...)
 
   for (i in nrow(y):1) {
-    yi <- yi 
     xs <- as.vector(rbind(breaks, breaks))
     ys <- as.vector(rbind(c(0, yi), c(yi, 0)))
     polygon(xs, ys, col=col[i], border=NA)
@@ -64,12 +64,17 @@ stepplot <- function(x, y, xlab="Time", ylab="kW",
 ##' @author David Sterratt
 ##' @method plot hourly
 ##' @export
-plot.hourly <- function(dat, col, ylim=NULL) {
+plot.hourly <- function(dat, col=NULL,
+                        ylim=NULL) {
   from <- attr(dat, "from")
   to <- attr(dat, "to")
   Time <- dat$Time
   dat <- t(subset(dat, select=-Time))
-
+  if (is.null(col)) {
+    col <- grey(seq(1, 0.5, len=nrow(dat)))
+    col <- col[length(col):1]
+  }
+  
   if (is.null(ylim))
     ylim <- c(0, max(apply(dat, 2, sum)))
   stepplot(Time, dat, xaxt="n", col=col, ylim=ylim,
