@@ -65,7 +65,7 @@ stepplot <- function(x, y, xlab="Time", ylab="kW",
 ##' @method plot hourly
 ##' @export
 plot.hourly <- function(dat, col=NULL,
-                        ylim=NULL) {
+                        ylim=NULL, ylab="kW") {
   from <- attr(dat, "from")
   to <- attr(dat, "to")
   Time <- dat$Time
@@ -78,7 +78,7 @@ plot.hourly <- function(dat, col=NULL,
   if (is.null(ylim))
     ylim <- c(0, max(apply(dat, 2, sum)))
   stepplot(Time, dat, xaxt="n", col=col, ylim=ylim,
-           main=paste(from, "to", to))
+           main=paste(from, "to", to), ylab=ylab)
   ## Prettier labels
   t0 <- as.POSIXlt(Time[1] - 30*60) 
   t1 <- as.POSIXlt(Time[length(Time)] + 30*60)
