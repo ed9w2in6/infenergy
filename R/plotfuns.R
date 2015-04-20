@@ -32,6 +32,7 @@ plot.energy <- function(dat, new=TRUE, ...) {
 ##' @param ylab Y-axis label
 ##' @param col Vector of colours to plot each set of data.
 ##' @author David Sterratt
+##' @export
 stepplot <- function(x, y, xlab="Time", ylab="kW",
                      col="white", ylim=NULL, ...) {
   ## Find breaks
