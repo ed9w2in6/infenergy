@@ -9,4 +9,5 @@ Informatics energy R package
 install.packages("devtools")
 library(devtools)
 install_github("davidcsterratt/infenergy")
+library(infenergy)
 example("get.inf.meter.data")
