@@ -2,24 +2,24 @@
 % Please edit documentation in R/inf-data.R
 \name{get.inf.ups.data.hourly}
 \alias{get.inf.ups.data.hourly}
-\title{Get data in hourly chunks from an informatics server}
+\title{Get hourly data from the Informatics UPS logs}
 \usage{
-get.inf.ups.data.hourly(from, to, ups = "forumA", ...)
+get.inf.ups.data.hourly(from, to, upss = c("forumA", "forumB"), ...)
 }
 \arguments{
 \item{from}{Date from which to collect data}
 
 \item{to}{Date to which to collect data}
 
-\item{upss}{Vector of upss from which to collect data}
+\item{upss}{Vector of UPSs from which to collect data}
 }
 \value{
-Data frame containing the columns \code{Time} of centre of
-interval, \code{kWh} energy used in that interval in kWh and
-\code{server} the name of the server to which the row relates
+Data frame with columns \code{Time} (the centre of the
+time period) and \code{kWh} (energy use in kWh in the hour
+centred on \code{Time})
 }
 \description{
-Get data in hourly chunks from an Informatics energy log.
+Get hourly data from the Informatics UPS logs
 }
 \author{
 David Sterratt

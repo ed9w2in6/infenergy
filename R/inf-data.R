@@ -78,18 +78,14 @@ get.inf.data <- function(date, ups="forumA", cache="prefer") {
   return(dat)
 }
 
-##' Get data in hourly chunks from an Informatics energy log.
-##'
-##' @title Get data in hourly chunks from an informatics server
+##' @title Get data in hourly chunks from an informatics UPS log.
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
-##' @param upss Vector of upss from which to collect data
+##' @param ups UPS from which to collect data
 ##' @return Data frame containing the columns \code{Time} of centre of
-##' interval, \code{kWh} energy used in that interval in kWh and
-##' \code{server} the name of the server to which the row relates
+##' interval, \code{kWh} energy used in that interval in kWh.
 ##' @author David Sterratt
-##' @export
-get.inf.ups.data.hourly <- function(from, to,
+get.inf.single.ups.data.hourly <- function(from, to,
                                     ups="forumA", ...) {
   ## Create list of dates from which to get data. We need to get the
   ## extra day for the sake of BST, as we'd like to have all day
@@ -143,21 +139,21 @@ get.inf.ups.data.hourly <- function(from, to,
   return(d)
 }
 
-##' @title Get hourly data from the Informatics server logs
+##' @title Get hourly data from the Informatics UPS logs
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
-##' @param upss Vector of upss from which to collect data
+##' @param upss Vector of UPSs from which to collect data
 ##' @return Data frame with columns \code{Time} (the centre of the
 ##' time period) and \code{kWh} (energy use in kWh in the hour
 ##' centred on \code{Time})
 ##' @author David Sterratt
 ##' @export
-get.inf.data.hourly <- function(from, to,
+get.inf.ups.data.hourly <- function(from, to,
                                 upss=c("forumA", "forumB"), ...) {
 
-  dat <-  get.inf.ups.data.hourly(from, to, upss[1], ...)
+  dat <-  get.inf.single.ups.data.hourly(from, to, upss[1], ...)
   for (ups in upss[-1]) {
-    d <- get.inf.ups.data.hourly(from, to, ups, ...)
+    d <- get.inf.single.ups.data.hourly(from, to, ups, ...)
     dat <- cbind(dat, d$kWh)
   }
   kWh <- dat[,-1,drop=FALSE]

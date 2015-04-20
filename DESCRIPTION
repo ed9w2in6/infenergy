@@ -1,13 +1,13 @@
-Copyright: 2012 David Sterratt
+Copyright: 2015 David Sterratt
 Package: infenergy
 Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 License: GPL2
 Title: Informatics energy analysis
 Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 Description: Various functions to analyse energy use in Informatics
-Version: 0.1
-URL: http://homepages.inf.ed.ac.uk/sterratt
-Date: 2012-01-30
+Version: 0.2
+URL: https://github.com/davidcsterratt/infenergy
+Date: 2015-04-15
 Depends:
     R (>= 2.10.0)
 Collate:
