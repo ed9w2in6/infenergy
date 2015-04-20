@@ -46,6 +46,10 @@ get.inf.data <- function(date, ups="forumA", cache="prefer") {
   
   ## Otherwise, get data from system
   base.url <- "http://netmon.inf.ed.ac.uk/raw-UPS"
+  year <- strftime(date, "%Y")
+  if (year != strftime(Sys.Time(), "%Y")) {
+    base.url <- file.path(base.url, year)
+  }
   file <- file.path(base.url,
                     paste(ups, "_power.raw.",
                           strftime(date, "%F"), sep=""))
