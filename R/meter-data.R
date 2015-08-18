@@ -1,4 +1,4 @@
-##' @title Get raw cumulative data from Informatics meter
+##' @title Get raw cumulative data from the Informatics Forum electricity meter
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
 ##' @return Data frame containing the columns \code{time} and
