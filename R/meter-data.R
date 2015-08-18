@@ -9,10 +9,10 @@
 ##' res <- get.inf.meter.data("2014-04-30", "2014-05-01")
 ##' with(res, plot(time[-1], diff(cumkwh), type="l"))
 get.inf.meter.data <- function(from, to) {
-  drv <- dbDriver("PostgreSQL")
-  con <-dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
-  res <- dbGetQuery(con, paste0("SELECT * FROM forum_electricity WHERE time > '", from, "' AND time <'", to, "'"))
-  dbDisconnect(con)
+  drv <- DBI::dbDriver("PostgreSQL")
+  con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
+  res <- DBI::dbGetQuery(con, paste0("SELECT * FROM forum_electricity WHERE time > '", from, "' AND time <'", to, "' ORDER BY time ASC"))
+  DBI::dbDisconnect(con)
   return(res)
 }
 

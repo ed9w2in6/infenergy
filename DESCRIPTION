@@ -11,6 +11,8 @@ Date: 2015-04-15
 Depends:
     R (>= 2.10.0),
     RPostgreSQL
+Imports:
+  DBI
 Collate:
     'plotfuns.R'
     'inf-data.R'
