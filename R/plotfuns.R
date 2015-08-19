@@ -101,7 +101,7 @@ plot.hourly <- function(dat, col=NULL,
 ##' @author David Sterratt
 ##' @method plot daily
 ##' @export
-plot.daily <- function(dat, col, ylim=NULL, per.hour=FALSE) {
+plot.daily <- function(dat, col=NULL, ylim=NULL, per.hour=FALSE) {
   from <- attr(dat, "from")
   to <- attr(dat, "to")
   Time <- dat$Time
@@ -109,7 +109,12 @@ plot.daily <- function(dat, col, ylim=NULL, per.hour=FALSE) {
   if (per.hour) {
     dat <- dat/24
   }
-  
+
+  if (is.null(col)) {
+    col <- grey(seq(1, 0.5, len=nrow(dat)))
+    col <- col[length(col):1]
+  }
+
   if (is.null(ylim))
     ylim <- c(0, max(apply(dat, 2, sum)))
   ylab <- ifelse(per.hour, "kW", "kWh per day")
