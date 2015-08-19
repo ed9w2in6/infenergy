@@ -13,9 +13,3 @@ Depends:
     RPostgreSQL
 Imports:
   DBI
-Collate:
-    'plotfuns.R'
-    'inf-data.R'
-    'uni-data.R'
-    'combine-data.R'
-    'meter-data.R'
