@@ -63,3 +63,53 @@ daily.hourly <- function(x) {
 daily.cumulative <- function(x) {
   return(daily(hourly(x)))
 }
+
+##' @title Weekly representation of data
+##' @param x \code{cumulative}, \code{hourly} \&c object
+##' @author David Sterratt
+##' @export
+weekly <- function(x) {
+  UseMethod("weekly")
+}
+
+##' @export
+weekly.default <- function(x) {
+}
+
+##' @export
+##' @method weekly daily
+weekly.daily <- function(x) {
+  ## Find the first and last time we can interpolate from
+  from <- as.POSIXlt(attr(x, "from"))
+  to <- as.POSIXlt(attr(x, "to"))
+
+  ## Find the first date after from that is a Monday
+  weekday <- as.numeric(strftime(from, "%u")) #  Weekday as a decimal number (1-7, Monday is 1)
+  if (weekday != 1) {
+    from <- round(from + (8 - weekday)*3600*24)
+  }
+  print(weekday)
+  ## Bin into weekly chunks, with the date boundary always being
+  ## midnight in any timezone, e.g. BST or GMT
+  dates <- round(seq(from, to, by="7 day"), units="day")
+  bins <- cut(x$Time, dates, labels=seq.Date(as.Date(from), as.Date(dates[length(dates) - 1]), by=7))
+
+  ad <- aggregate(kWh ~ bins, data=x, FUN=sum)
+  d <- with(ad, data.frame(Time=as.POSIXct(bins), kWh=kWh))
+  attr(d, "from") <- from
+  attr(d, "to") <- to
+  class(d) <-  c("weekly", class(d))
+  return(d)
+}
+
+##' @export
+##' @method weekly hourly
+weekly.hourly <- function(x) {
+  return(weekly(daily(x)))
+}
+
+##' @export
+##' @method weekly cumulative
+weekly.cumulative <- function(x) {
+  return(weekly(daily(x)))
+}

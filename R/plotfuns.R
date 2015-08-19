@@ -131,3 +131,38 @@ plot.daily <- function(dat, col=NULL, ylim=NULL, per.hour=FALSE) {
   locs <- locs + 15*24*60*60
   axis(1, at=locs, labels=strftime(locs, "%b"), tick=FALSE)
 }
+
+##' @title Plot energy data weekly 
+##' @param dat Data frame of weekly data with first column containing Time
+##' @param col Colours to plot non-time columns
+##' @param ylim Specify ylim
+##' @author David Sterratt
+##' @method plot weekly
+##' @export
+plot.weekly <- function(dat, col=NULL, ylim=NULL) {
+  from <- attr(dat, "from")
+  to <- attr(dat, "to")
+  Time <- dat$Time
+  dat <- t(subset(dat, select=-Time))
+
+  if (is.null(col)) {
+    col <- grey(seq(1, 0.5, len=nrow(dat)))
+    col <- col[length(col):1]
+  }
+
+  if (is.null(ylim))
+    ylim <- c(0, max(apply(dat, 2, sum)))
+  ylab <- "kWh per week"
+  stepplot(Time, dat, xaxt="n", col=col, ylim=ylim,
+       ylab=ylab, main=paste(from, "to", to))
+
+  ## Lines indicating start of month
+  t0 <- as.POSIXlt(Time[1]) 
+  t1 <- as.POSIXlt(Time[length(Time)] + 24*60*60)
+  locs <- as.POSIXct(unique(strftime(Time, "%Y-%m-01")))
+  lines(rbind(locs, locs, NA), rep(c(ylim, NA), length(locs)))
+  axis(1, at=locs, labels=NA)
+  ## Positions for month labels
+  locs <- locs + 15*24*60*60
+  axis(1, at=locs, labels=strftime(locs, "%b"), tick=FALSE)
+}
