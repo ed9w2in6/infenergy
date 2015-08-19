@@ -12,8 +12,11 @@ get.inf.meter.data(from, to)
 \item{to}{Date to which to collect data}
 }
 \value{
-Data frame containing the columns \code{time} and
-\code{cumkwh} cumulative energy up to that time in kWh.
+Data frame with class \code{cumulative} containing the
+columns \code{time} and \code{cumkwh} cumulative energy up to that
+time in kWh. To allow conversion to hourly and daily formats there
+will be one measurement just before the \code{from} date and one
+just after the {to} date.
 }
 \description{
 Get raw cumulative data from the Informatics Forum electricity meter

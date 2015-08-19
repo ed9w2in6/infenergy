@@ -54,18 +54,3 @@ get.inf.meter.data <- function(from, to) {
   return(res)
 }
 
-##' @title Get data in hourly chunks from Informatics meter
-##' @param from Date from which to collect data
-##' @param to Date to which to collect data
-##' @return Data frame containing the columns \code{Time} of centre of
-##' interval, \code{kWh} energy used in that interval in kWh.
-##' @author David Sterratt
-##' @export
-get.inf.meter.data.hourly <- function(from, to) {
-  
-}
-
-
-
-
-
