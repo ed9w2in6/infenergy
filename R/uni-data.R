@@ -47,6 +47,9 @@ get.uni.half.hourly.data <- function(from, to) {
 ##' @author David Sterratt
 ##' @export
 get.uni.data.hourly <- function(from, to) {
+  from <- as.POSIXlt(from)
+  to <- as.POSIXlt(to)
+  
   dat <- get.uni.half.hourly.data(from, to)
   fdat <- dat[seq(2,nrow(dat),2),]
   fdat[,2] <- fdat[,2] + dat[seq(1,nrow(dat),2),2]

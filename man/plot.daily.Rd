@@ -4,7 +4,7 @@
 \alias{plot.daily}
 \title{Plot energy data daily}
 \usage{
-\method{plot}{daily}(dat, col, ylim = NULL, per.hour = FALSE)
+\method{plot}{daily}(dat, col = NULL, ylim = NULL, per.hour = FALSE)
 }
 \arguments{
 \item{dat}{Data frame of daily data with first column containing Time}
