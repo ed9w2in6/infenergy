@@ -2,7 +2,7 @@
 % Please edit documentation in R/meter-data.R
 \name{get.inf.meter.data}
 \alias{get.inf.meter.data}
-\title{Get raw cumulative data from Informatics meter}
+\title{Get raw cumulative data from the Informatics Forum electricity meter}
 \usage{
 get.inf.meter.data(from, to)
 }
@@ -16,7 +16,7 @@ Data frame containing the columns \code{time} and
 \code{cumkwh} cumulative energy up to that time in kWh.
 }
 \description{
-Get raw cumulative data from Informatics meter
+Get raw cumulative data from the Informatics Forum electricity meter
 }
 \examples{
 res <- get.inf.meter.data("2014-04-30", "2014-05-01")
