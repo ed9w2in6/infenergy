@@ -59,6 +59,15 @@ daily.hourly <- function(x) {
 }
 
 ##' @export
+##' @method daily hourly
+subset.hourly <- function(x, ...) {
+  y <- subset.data.frame(x, ...)
+  attr(y, "from") <- attr(x, "from")
+  attr(y, "to") <- attr(y, "from")
+  return(y)
+}
+
+##' @export
 ##' @method daily cumulative
 daily.cumulative <- function(x) {
   return(daily(hourly(x)))
