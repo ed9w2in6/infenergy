@@ -23,18 +23,26 @@ get.inf.meter.data <- function(from, to) {
   drv <- DBI::dbDriver("PostgreSQL")
   con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
   inds <- c(0, 0)
-  i <- 0
+  i <- 1
+  tmin <- DBI::dbGetQuery(con, "SELECT MIN(time) FROM forum_electricity;")$min
+  tmax <- DBI::dbGetQuery(con, "SELECT MAX(time) FROM forum_electricity;")$max
+  dataleft <- TRUE
   while((inds[1] == 0 || inds[2] == length(res$time))
-        && (i <= length(offsets))) {
-    i <- i + 1
+        && (i < length(offsets))
+        && dataleft) {
     res <- DBI::dbGetQuery(con,
                            paste0("SELECT * FROM forum_electricity",
                                   " WHERE time > '", format(from - offsets[i], usetz=TRUE),
-                                  " 'AND time <'", format(to + offsets[i], usetz=TRUE),
+                                  "' AND time <'", format(to + offsets[i], usetz=TRUE),
                                   "' ORDER BY time ASC"))
     ## Check for readings just before "from" and just after "to"
     ## dat <- approx(res$time, res$cumkwh, c(from, to))
     inds <- findInterval(c(from, to), res$time)
+    if ((from - offsets[i] < tmin) && (from - offsets[i] > tmax)) {
+      dataleft <- FALSE
+    } else {
+      i <- i + 1
+    }
   }
   ## Trim records; start at end so indicies don't change
   if (inds[2] == nrow(res)) {
