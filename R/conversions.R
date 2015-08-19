@@ -47,7 +47,7 @@ daily.hourly <- function(x) {
 
   ## Bin into daily chunks, with the date boundary always being
   ## midnight in any timezone, e.g. BST or GMT
-  dates <- trunc(seq(from, to, by="1 day"), units="day")
+  dates <- round(seq(from, to, by="1 day"), units="day")
   bins <- cut(x$Time, dates, labels=seq.Date(as.Date(from), as.Date(to - 12*3600), by=1))
 
   ad <- aggregate(kWh ~ bins, data=x, FUN=sum)
