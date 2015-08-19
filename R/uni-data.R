@@ -1,10 +1,3 @@
-get.uni.data <- function(file="111010 Informatics HH Data 10-11.csv") {
-  dat <- read.csv(file)
-  colnames(dat) <- c("Date", "kWh")
-  dat$Date <- strptime(dat$Date, "%d/%m/%Y")
-  return(dat)
-}
-
 ##' @title Get half-hourly data from the University Energy Office's data files
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
@@ -64,9 +57,3 @@ get.uni.data.hourly <- function(from, to) {
   return(fdat)
 }
 
-get.uni.data.daily <- function(from, to) {
-  dat <- get.uni.data()
-  return(subset(dat,
-                Date >= as.POSIXct(from) &
-                Date <= as.POSIXct(to)))
-}
