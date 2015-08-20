@@ -14,7 +14,7 @@ cachedir <- "cache"
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.inf.data <- function(date, ups="forumA", power.factor=1, cache="prefer") {
+get.inf.single.ups.date <- function(date, ups="forumA", power.factor=1, cache=TRUE) {
 
   blank.data <- function(date) {
     warning(paste("Some data points may be missing from", ups, "data on", date))
@@ -30,39 +30,33 @@ get.inf.data <- function(date, ups="forumA", power.factor=1, cache="prefer") {
   ## Read from cache - if it exists
   cachefile <- file.path(cachedir,
                          paste(ups, "_raw_", strftime(date, "%F"), ".csv", sep=""))
-  if (cache != "none" & file.exists(cachefile)) {
+  if (cache & file.exists(cachefile)) {
     dat <- read.csv(cachefile)
-    times <- as.POSIXct(dat[,"UnixTime"], origin=as.POSIXct("1970-01-01", tz="GMT"), tz="GMT")
-    dat$Time <-times
-    return(dat)
-  }
-
-  if (cache == "use") {
-    return(NULL)
+  } else {
+    ## Otherwise, get data from system
+    base.url <- "http://netmon.inf.ed.ac.uk/raw-UPS"
+    year <- strftime(date, "%Y")
+    if (year != strftime(Sys.time(), "%Y")) {
+      base.url <- file.path(base.url, year)
+    }
+    file <- file.path(base.url,
+                      paste(ups, "_power.raw.",
+                            strftime(date, "%F"), sep=""))
+    dat <- tryCatch(read.csv(file, header=FALSE),
+                    error=function(e) {return(NULL)},
+                    warning=function(w) {})
+    if (is.null(dat)) {
+      warning(paste("Could not read", ups, "data from", date))
+      return(blank.data(date))
+    }
+    colnames(dat) <- c("UnixTime",
+                       "L1V", "L2V", "L3V", # Voltage in V
+                       "L1I", "L2I", "L3I", # Current in dA
+                       "L1P", "L2P", "L3P", # Real power in W
+                       "L1L", "L2L", "L3L") # Percentage load
+    write.csv(dat, cachefile, row.names=FALSE)
   }
   
-  ## Otherwise, get data from system
-  base.url <- "http://netmon.inf.ed.ac.uk/raw-UPS"
-  year <- strftime(date, "%Y")
-  if (year != strftime(Sys.time(), "%Y")) {
-    base.url <- file.path(base.url, year)
-  }
-  file <- file.path(base.url,
-                    paste(ups, "_power.raw.",
-                          strftime(date, "%F"), sep=""))
-  dat <- tryCatch(read.csv(file, header=FALSE),
-                  error=function(e) {return(NULL)},
-                  warning=function(w) {})
-  if (is.null(dat)) {
-    warning(paste("Could not read", ups, "data from", date))
-    return(blank.data(date))
-  }
-  colnames(dat) <- c("UnixTime",
-                     "L1V", "L2V", "L3V", # Voltage in V
-                     "L1I", "L2I", "L3I", # Current in dA
-                     "L1P", "L2P", "L3P", # Real power in W
-                     "L1L", "L2L", "L3L") # Percentage load
-
   ## Convert Unix time into POSIX time
   times <- as.POSIXct(dat[,"UnixTime"], origin=as.POSIXct("1970-01-01", tz="GMT"), tz="GMT")
   dat$Time <-times
@@ -92,8 +86,19 @@ get.inf.data <- function(date, ups="forumA", power.factor=1, cache="prefer") {
   ## Compute power from the the voltage and current in each of the
   ## three phases - current is in dA, voltage is V
   dat <- mutate(dat, P.kW = (L1P + L2P + L3P)/1000)
-  write.csv(dat, cachefile, row.names=FALSE)
   return(dat)
+}
+
+##' @author David Sterratt
+##' @export
+get.inf.single.ups <- function(from, to, ups="forumA", cache=TRUE, ...) {
+  ## Create list of dates from which to get data.
+  dates <- as.list(seq.Date(as.Date(from), to=as.Date(to), by=1))
+
+  d <- do.call(rbind, lapply(dates, function(d) {
+                               get.inf.single.ups.date(d, ups, ...)
+                             }))
+  return(d)
 }
 
 ##' @title Get data in hourly chunks from an informatics UPS log.
@@ -104,56 +109,33 @@ get.inf.data <- function(date, ups="forumA", power.factor=1, cache="prefer") {
 ##' interval, \code{kWh} energy used in that interval in kWh.
 ##' @author David Sterratt
 get.inf.single.ups.data.hourly <- function(from, to,
-                                    ups="forumA", ...) {
-  ## Create list of dates from which to get data. We need to get the
-  ## extra day for the sake of BST, as we'd like to have all day
-  ## boundaries on GMT.
-  dates <- as.list(seq.Date(as.Date(from), to=as.Date(to)+1, by=1))
-
-  ## Initialise output data frame
-  d <- data.frame(matrix(0, nrow=0, ncol=2))
-  colnames(d) <- c("Time", "kWh")
-  for (date in dates) {
-    ## Get the data for that date and server
-    gd <- get.inf.data(date, ups, ...)
-    if (!is.null(gd)) {
-      ## d <- rbind(d, gd)
-      d <- rbind(d, gd[,c("Time","kWh")])
-    } else {
-      warning(paste("Some data points may be missing from", ups, "data on", date))
-      ## d <- rbind(d, data.frame(Time=seq.POSIXt(as.POSIXct(from, tz="GMT"),
-      ##                             to=as.POSIXct(from, tz="GMT")+23*3600,
-      ##                             by="1 hour"),
-      ##                          kWh=NA))
-    }
-  }
+                                           ups="forumA", cache=TRUE, ...) {
+  ## Get the data
+  d <- get.inf.single.ups(from, to, ups, ...)
     
   ## Bin into hourly chunks
   times <- seq.POSIXt(as.POSIXct(from, tz="GMT"),
-                      to=as.POSIXct(to, tz="GMT")+24*3600, by="1 hour")
+                      to=as.POSIXct(to, tz="GMT"), by="1 hour")
+
   ## Create bins in which to aggregate the data
   if (nrow(d) > 0) {
     bins <- cut(d$Time, times, labels=times[-1]-30*60)
     if (any(!is.na(bins))) {
       ## Agregate the data
-      ad <- aggregate(kWh ~ bins, data=d, FUN=mean)
-      d <- with(ad, data.frame(Time=as.POSIXct(bins, tz="GMT"), kWh=kWh))
+      ad <- aggregate(P.kW ~ bins, data=d, FUN=mean)
+      d <- with(ad, data.frame(Time=as.POSIXct(bins, tz="GMT"), kWh=P.kW))
     } else {
       ## If all the bins are NA due to all the data being outwith times
       d <- data.frame(matrix(0, nrow=0, ncol=2))
       colnames(d) <- c("Time", "kWh")
     }
   }
-  ## print(paste("After aggregation",nrow(d)))
   missing.times <- as.POSIXct(setdiff(times[-1]-1800, d$Time),
                               origin=as.POSIXct("1970-01-01", tz="GMT"), tz="GMT")
   if (length(missing.times > 0)) {
     d <- rbind(d, data.frame(Time=missing.times, kWh=NA))
     d <- d[order(d$Time),]
   }
-  ## } else {
-  ##    d <- data.frame(Time=as.POSIXct(bins, tz="GMT"), kWh=NA)
-  ## }
   return(d)
 }
 
