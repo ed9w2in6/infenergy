@@ -37,6 +37,15 @@ get.uni.half.hourly.data <- function(from, to) {
   dat <- unique(dat)
   dat <- subset(dat, (Time >= from) & (Time <= to))
 
+  ## Quality check - should be a test?
+  if (any(diff(dat$Time) > 30)) {
+    print(dat[which(diff(dat$Time) > 30),])
+    stop("Some time differences are greater than 30 minutes")
+  }
+  if (any(diff(dat$Time) < 0)) {
+    print(dat[which(diff(dat$Time) > 0),])
+    stop("Some time differences are negative")
+  }
   attr(dat, "from") <- from
   attr(dat, "to") <- to
   class(dat) <- c("halfhourly", "data.frame")
