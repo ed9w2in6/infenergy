@@ -5,13 +5,16 @@ cachedir <- "cache"
 ##' @title Get one day's data from a UPS
 ##' @param date Day on which to get data
 ##' @param ups UPS from which to get data
+##' @param power.factor Power factor from which to compute real power
+##' from apparent power. If this \code{NA}, use the real power
+##' supplied by the UPS
 ##' @param cache If \code{prefer}, use cached data if available, but
 ##' otherwise use source data. If \code{use}, only used cached data,
 ##' and don't try source data. If \code{none}, don't use.
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.inf.data <- function(date, ups="forumA", cache="prefer") {
+get.inf.data <- function(date, ups="forumA", power.factor=1, cache="prefer") {
 
   blank.data <- function(date) {
     warning(paste("Some data points may be missing from", ups, "data on", date))
@@ -19,12 +22,6 @@ get.inf.data <- function(date, ups="forumA", cache="prefer") {
                           as.POSIXct(as.Date(as.POSIXct(date) + 26*3600)) - 1800,
                           by="1 hour")
     return(NULL)
-    ## return(data.frame(UnixTime=as.numeric(times),
-    ##                  L1V=NA, L2V=NA, L3V=NA,
-    ##                  L1I=NA, L2I=NA, L3I=NA,
-    ##                  L1P=NA, L2P=NA, L3P=NA,
-    ##                  L1L=NA, L2L=NA, L3L=NA,
-    ##                  Time=times, UPS=ups, kWh=NA))
   }
 
   if (!file.exists(cachedir)) 
@@ -61,19 +58,40 @@ get.inf.data <- function(date, ups="forumA", cache="prefer") {
     return(blank.data(date))
   }
   colnames(dat) <- c("UnixTime",
-                     "L1V", "L2V", "L3V",
-                     "L1I", "L2I", "L3I",
-                     "L1P", "L2P", "L3P",
-                     "L1L", "L2L", "L3L")
+                     "L1V", "L2V", "L3V", # Voltage in V
+                     "L1I", "L2I", "L3I", # Current in dA
+                     "L1P", "L2P", "L3P", # Real power in W
+                     "L1L", "L2L", "L3L") # Percentage load
 
   ## Convert Unix time into POSIX time
   times <- as.POSIXct(dat[,"UnixTime"], origin=as.POSIXct("1970-01-01", tz="GMT"), tz="GMT")
   dat$Time <-times
   dat$UPS <- ups
 
+  ## Compute apparent power in VA - current is in dA; voltage is V
+  dat <- mutate(dat, L1S=L1V*L1I/10)
+  dat <- mutate(dat, L2S=L2V*L2I/10)
+  dat <- mutate(dat, L3S=L3V*L3I/10)
+
+  if (is.na(power.factor)) {
+    ## Compute power factor
+    dat <- mutate(dat, L1PF=L1P/L1S)
+    dat <- mutate(dat, L2PF=L2P/L2S)
+    dat <- mutate(dat, L3PF=L3P/L3S)
+  } else {
+    ## Set power factor
+    dat <- mutate(dat, L1PF=power.factor)
+    dat <- mutate(dat, L2PF=power.factor)
+    dat <- mutate(dat, L3PF=power.factor)
+    ## Compute real power from apparent power
+    dat <- mutate(dat, L1P=power.factor*L1S)
+    dat <- mutate(dat, L2P=power.factor*L2S)
+    dat <- mutate(dat, L3P=power.factor*L3S)
+  }
+    
   ## Compute power from the the voltage and current in each of the
-  ## three phases
-  dat$kWh <- with(dat, (L1V*L1I + L2V*L2I + L3V*L3I)/10/1000)
+  ## three phases - current is in dA, voltage is V
+  dat <- mutate(dat, P.kW = (L1P + L2P + L3P)/1000)
   write.csv(dat, cachefile, row.names=FALSE)
   return(dat)
 }
