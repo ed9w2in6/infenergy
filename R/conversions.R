@@ -32,13 +32,12 @@ hourly.halfhourly <- function(x) {
   from <- as.POSIXlt(attr(x, "from"))
   to <- as.POSIXlt(attr(x, "to"))
 
-  ## Bin into daily chunks, with the date boundary always being
-  ## midnight in any timezone, e.g. BST or GMT
-  times <- seq.POSIXt(from, to, by="1 hour")
-  bins <- cut(x$Time, times) # , labels=times[-1]-1800)
-
+  ## Bin into daily chunks. This gives factors with labels that are in
+  ## GMT
+  bins <- cut(x$Time, "hours")
   ad <- aggregate(kWh ~ bins, data=x, FUN=sum)
-  d <- with(ad, data.frame(Time=as.POSIXct(bins), kWh=kWh))
+  ## Need to specify that the bins are in GMT
+  d <- with(ad, data.frame(Time=as.POSIXct(bins, tz="GMT"), kWh=kWh))
   attr(d, "from") <- from
   attr(d, "to") <- to
   class(d) <-  c("hourly", class(d))
