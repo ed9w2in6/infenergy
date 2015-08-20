@@ -14,7 +14,7 @@ get.uni.half.hourly.data <- function(from, to) {
                       full.names=TRUE)
   dat <- NULL
   for (file in files) {
-    fdat <- read.csv(file)
+    fdat <- read.csv(file, header=FALSE)
     while (ncol(fdat) > 0) {
       d <- fdat[,1:2]
       d <- d[d[,1]!="Maximum",]
