@@ -4,7 +4,7 @@
 \alias{get.inf.single.ups.data.hourly}
 \title{Get data in hourly chunks from an informatics UPS log.}
 \usage{
-get.inf.single.ups.data.hourly(from, to, ups = "forumA", ...)
+get.inf.single.ups.data.hourly(from, to, ups = "forumA", cache = TRUE, ...)
 }
 \arguments{
 \item{from}{Date from which to collect data}
