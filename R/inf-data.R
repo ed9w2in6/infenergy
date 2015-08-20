@@ -92,12 +92,14 @@ get.inf.single.ups.date <- function(date, ups="forumA", power.factor=1, cache=TR
 ##' @author David Sterratt
 ##' @export
 get.inf.single.ups <- function(from, to, ups="forumA", cache=TRUE, ...) {
+  from <- as.POSIXlt(from)
   ## Create list of dates from which to get data.
-  dates <- as.list(seq.Date(as.Date(from), to=as.Date(to), by=1))
-
+  dates <- as.list(seq.Date(as.Date(trunc(as.POSIXlt(from + 1, tz="GMT"), "day")),
+                            to=as.Date(to), by=1))
   d <- do.call(rbind, lapply(dates, function(d) {
                                get.inf.single.ups.date(d, ups, ...)
                              }))
+  d <- subset(d, Time >= from & Time < to)
   return(d)
 }
 
@@ -108,18 +110,19 @@ get.inf.single.ups <- function(from, to, ups="forumA", cache=TRUE, ...) {
 ##' @return Data frame containing the columns \code{Time} of centre of
 ##' interval, \code{kWh} energy used in that interval in kWh.
 ##' @author David Sterratt
+##' @export
 get.inf.single.ups.data.hourly <- function(from, to,
                                            ups="forumA", cache=TRUE, ...) {
   ## Get the data
   d <- get.inf.single.ups(from, to, ups, ...)
     
   ## Bin into hourly chunks
-  times <- seq.POSIXt(as.POSIXct(from, tz="GMT"),
-                      to=as.POSIXct(to, tz="GMT"), by="1 hour")
+  ## times <- seq.POSIXt(as.POSIXlt(from),
+  ## to=as.POSIXlt(to), by="1 hour")
 
   ## Create bins in which to aggregate the data
   if (nrow(d) > 0) {
-    bins <- cut(d$Time, times, labels=times[-1]-30*60)
+    bins <- cut(d$Time, "hours") # , labels=times[-1]-30*60)
     if (any(!is.na(bins))) {
       ## Agregate the data
       ad <- aggregate(P.kW ~ bins, data=d, FUN=mean)
@@ -130,7 +133,7 @@ get.inf.single.ups.data.hourly <- function(from, to,
       colnames(d) <- c("Time", "kWh")
     }
   }
-  missing.times <- as.POSIXct(setdiff(times[-1]-1800, d$Time),
+  missing.times <- as.POSIXct(setdiff(as.POSIXct(levels(bins), tz="GMT"), d$Time),
                               origin=as.POSIXct("1970-01-01", tz="GMT"), tz="GMT")
   if (length(missing.times > 0)) {
     d <- rbind(d, data.frame(Time=missing.times, kWh=NA))
