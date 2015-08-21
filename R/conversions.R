@@ -67,9 +67,11 @@ daily.hourly <- function(x) {
   ## midnight in any timezone, e.g. BST or GMT
   dates <- round(seq(from, to, by="1 day"), units="day")
   bins <- cut(x$Time, dates, labels=seq.Date(as.Date(from), as.Date(dates[length(dates) - 1]), by=1))
-
-  ad <- aggregate(kWh ~ bins, data=x, FUN=sum)
-  d <- with(ad, data.frame(Time=as.POSIXct(bins), kWh=kWh))
+  x$Time <- NULL
+  ad <- aggregate(. ~ bins, data=x, FUN=sum)
+  d <- data.frame(Time=as.POSIXct(ad$bins), ad)
+  d$bins <- NULL
+  
   attr(d, "from") <- from
   attr(d, "to") <- to
   class(d) <-  c("daily", class(d))
@@ -120,9 +122,11 @@ weekly.daily <- function(x) {
   ## midnight in any timezone, e.g. BST or GMT
   dates <- round(seq(from, to, by="7 day"), units="day")
   bins <- cut(x$Time, dates, labels=seq.Date(as.Date(from), as.Date(dates[length(dates) - 1]), by=7))
-
-  ad <- aggregate(kWh ~ bins, data=x, FUN=sum)
-  d <- with(ad, data.frame(Time=as.POSIXct(bins), kWh=kWh))
+  x$Time <- NULL
+  ad <- aggregate(. ~ bins, data=x, FUN=sum)
+  d <- with(ad, data.frame(Time=as.POSIXct(ad$bins), ad))
+  d$bins <- NULL
+  
   attr(d, "from") <- from
   attr(d, "to") <- to
   class(d) <-  c("weekly", class(d))
