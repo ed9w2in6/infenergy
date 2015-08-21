@@ -4,7 +4,8 @@
 \alias{plot.weekly}
 \title{Plot energy data weekly}
 \usage{
-\method{plot}{weekly}(dat, col = NULL, ylim = NULL)
+\method{plot}{weekly}(dat, col = NULL, ylim = NULL, month.bars = TRUE,
+  year.bars = FALSE, main = NULL, ylab = NULL, ...)
 }
 \arguments{
 \item{dat}{Data frame of weekly data with first column containing Time}

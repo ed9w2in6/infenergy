@@ -39,9 +39,16 @@ get.single.ups.date <- function(date, ups="forumA", cache=TRUE) {
     file <- file.path(base.url,
                       paste(ups, "_power.raw.",
                             strftime(date, "%F"), sep=""))
-    dat <- tryCatch(read.csv(file, header=FALSE),
-                    error=function(e) {return(NULL)},
+    dat <- NULL
+    print(file)
+    con <- url(file)
+    dat <- tryCatch(read.csv(con, header=FALSE),
+                    error=function(e) {
+                      close(con)
+                      return(NULL)
+                    },
                     warning=function(w) {})
+    
     if (is.null(dat)) {
       warning(paste("Could not read", ups, "data from", date))
       return(blank.data(date))
@@ -74,6 +81,7 @@ dump.single.ups.to.db <- function(from, to, ups="forumA") {
   for (d in dates) {
     dat <- get.single.ups.date(d, ups, cache=FALSE)
     if (!is.null(dat)) {
+      print(paste("Writing to db", d))
       DBI::dbWriteTable(con, tabname, dat,
                         append=DBI::dbExistsTable(con, tabname),
                         row.names=FALSE)
@@ -84,10 +92,11 @@ dump.single.ups.to.db <- function(from, to, ups="forumA") {
 ##dump.single.ups.to.db("2011-07-06", "2015-08-20", ups="serverL")
 ##dump.single.ups.to.db("2011-07-06", "2015-08-20", ups="serverR")
 ##dump.single.ups.to.db("2011-07-06", "2013-01-03", ups="forumA")
+##dump.single.ups.to.db("2013-01-03", "2013-03-30", ups="forumA")
 ##dump.single.ups.to.db("2011-07-06", "2015-08-20", ups="forumB")
 ## There is a gap in the data on 2013-01-17
 ##dump.single.ups.to.db("2013-03-18", "2015-08-20", ups="forumB")
-
+## dump.single.ups.to.db("2011-07-06", "2015-08-20", ups="forumB")
 ##' @author David Sterratt
 ##' @export
 get.single.ups.database <- function(from, to, ups="forumA", ...) {
