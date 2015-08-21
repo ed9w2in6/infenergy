@@ -14,7 +14,7 @@ cachedir <- "cache"
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.inf.single.ups.date <- function(date, ups="forumA", power.factor=1, cache=TRUE) {
+get.single.ups.date <- function(date, ups="forumA", power.factor=1, cache=TRUE) {
 
   blank.data <- function(date) {
     warning(paste("Some data points may be missing from", ups, "data on", date))
@@ -66,13 +66,13 @@ get.inf.single.ups.date <- function(date, ups="forumA", power.factor=1, cache=TR
 
 ##' @author David Sterratt
 ##' @export
-get.inf.single.ups <- function(from, to, ups="forumA", cache=TRUE, ...) {
+get.single.ups <- function(from, to, ups="forumA", cache=TRUE, ...) {
   from <- as.POSIXlt(from)
   ## Create list of dates from which to get data.
   dates <- as.list(seq.Date(as.Date(trunc(as.POSIXlt(from + 1, tz="GMT"), "day")),
                             to=as.Date(to), by=1))
   d <- do.call(rbind, lapply(dates, function(d) {
-                               get.inf.single.ups.date(d, ups, ...)
+                               get.single.ups.date(d, ups, ...)
                              }))
   d <- subset(d, Time >= from & Time < to)
   
@@ -112,10 +112,10 @@ get.inf.single.ups <- function(from, to, ups="forumA", cache=TRUE, ...) {
 ##' interval, \code{kWh} energy used in that interval in kWh.
 ##' @author David Sterratt
 ##' @export
-get.inf.single.ups.data.hourly <- function(from, to,
+get.single.ups.hourly <- function(from, to,
                                            ups="forumA", cache=TRUE, ...) {
   ## Get the data
-  d <- get.inf.single.ups(from, to, ups, ...)
+  d <- get.single.ups(from, to, ups, ...)
     
 
   ## Create bins in which to aggregate the data
@@ -155,12 +155,12 @@ get.inf.single.ups.data.hourly <- function(from, to,
 ##' centred on \code{Time})
 ##' @author David Sterratt
 ##' @export
-get.inf.ups.data.hourly <- function(from, to,
+get.ups.hourly <- function(from, to,
                                 upss=c("forumA", "forumB"), ...) {
 
-  dat <-  get.inf.single.ups.data.hourly(from, to, upss[1], ...)
+  dat <-  get.single.ups.hourly(from, to, upss[1], ...)
   for (ups in upss[-1]) {
-    d <- get.inf.single.ups.data.hourly(from, to, ups, ...)
+    d <- get.single.ups.hourly(from, to, ups, ...)
     dat <- cbind(dat, d$kWh)
   }
   kWh <- dat[,-1,drop=FALSE]
@@ -181,10 +181,10 @@ get.inf.ups.data.hourly <- function(from, to,
   return(ad)
 }
 
-## dat <- get.inf.data("2011-07-07", "forumA", TRUE)
-## dat <- get.inf.data.hourly("2011-07-20", to="2011-07-25", ups="forumA")
+## dat <- get.data("2011-07-07", "forumA", TRUE)
+## dat <- get.ups.hourly("2011-07-20", to="2011-07-25", ups="forumA")
 ## png(file="forumA-sample.png", width=800, height=600)
 ## plot.energy(dat)
 ## dev.off()
-## #dat <- get.inf.data.hourly("2011-07-20", to="2011-09-09")
+## #dat <- get.ups.hourly("2011-07-20", to="2011-09-09")
 
