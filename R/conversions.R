@@ -113,11 +113,11 @@ weekly.daily <- function(x) {
   to <- as.POSIXlt(attr(x, "to"))
 
   ## Find the first date after from that is a Monday
+  ## Check out seq.Date for nice way of doing this!
   weekday <- as.numeric(strftime(from, "%u")) #  Weekday as a decimal number (1-7, Monday is 1)
   if (weekday != 1) {
     from <- round(from + (8 - weekday)*3600*24)
   }
-  print(weekday)
   ## Bin into weekly chunks, with the date boundary always being
   ## midnight in any timezone, e.g. BST or GMT
   dates <- round(seq(from, to, by="7 day"), units="day")
