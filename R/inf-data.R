@@ -181,37 +181,6 @@ get.inf.ups.data.hourly <- function(from, to,
   return(ad)
 }
 
-
-get.inf.data.daily <- function(from, to, ups="forumA") {
-
-  d <- get.inf.ups.data.hourly(from, to, ups)
-
-  ## Bin into daily chunks
-  dates <- seq.POSIXt(as.POSIXct(from, tz="GMT"),
-                      to=as.POSIXct(to, tz="GMT")+24*3600, by="1 day")
-
-  bins <- cut(dat$Time, dates, labels=seq.Date(as.Date(from), as.Date(to), by=1))
-
-  ad <- aggregate(kWh ~ bins, data=d, FUN=sum)
-  d <- with(ad, data.frame(Date=as.POSIXct(bins), kWh=kWh))
-  
-  return(d)
-}
-
-get.inf.total.daily <- function(from, to,
-                            upss=c("forumA", "forumB",
-                              "serverL", "serverR")) {
-  dat <- NULL
-  for (ups in upss) {
-    d <- get.inf.data.daily(from, to, ups)
-    d$ups <- ups
-    dat <- rbind(dat, d)
-  }
-  ad <- aggregate(kWh ~ Date, data=dat, FUN=sum)
-  return(ad)
-}
-
-
 ## dat <- get.inf.data("2011-07-07", "forumA", TRUE)
 ## dat <- get.inf.data.hourly("2011-07-20", to="2011-07-25", ups="forumA")
 ## png(file="forumA-sample.png", width=800, height=600)
