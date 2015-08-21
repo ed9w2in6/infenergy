@@ -5,16 +5,13 @@ cachedir <- "cache"
 ##' @title Get one day's data from a UPS
 ##' @param date Day on which to get data
 ##' @param ups UPS from which to get data
-##' @param power.factor Power factor from which to compute real power
-##' from apparent power. If this \code{NA}, use the real power
-##' supplied by the UPS
 ##' @param cache If \code{prefer}, use cached data if available, but
 ##' otherwise use source data. If \code{use}, only used cached data,
 ##' and don't try source data. If \code{none}, don't use.
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.single.ups.date <- function(date, ups="forumA", power.factor=1, cache=TRUE) {
+get.single.ups.date <- function(date, ups="forumA", cache=TRUE) {
 
   blank.data <- function(date) {
     warning(paste("Some data points may be missing from", ups, "data on", date))
@@ -66,15 +63,66 @@ get.single.ups.date <- function(date, ups="forumA", power.factor=1, cache=TRUE) 
 
 ##' @author David Sterratt
 ##' @export
-get.single.ups <- function(from, to, ups="forumA", cache=TRUE, ...) {
+dump.single.ups.to.db <- function(from, to, ups="forumA") {
   from <- as.POSIXlt(from)
   ## Create list of dates from which to get data.
   dates <- as.list(seq.Date(as.Date(trunc(as.POSIXlt(from + 1, tz="GMT"), "day")),
                             to=as.Date(to), by=1))
-  d <- do.call(rbind, lapply(dates, function(d) {
-                               get.single.ups.date(d, ups, ...)
-                             }))
-  d <- subset(d, Time >= from & Time < to)
+  drv <- DBI::dbDriver("PostgreSQL")
+  con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
+  tabname <- "forum_ups"
+  for (d in dates) {
+    dat <- get.single.ups.date(d, ups, cache=FALSE)
+    if (!is.null(dat)) {
+      DBI::dbWriteTable(con, tabname, dat,
+                        append=DBI::dbExistsTable(con, tabname),
+                        row.names=FALSE)
+    }
+  }
+  DBI::dbDisconnect(con)
+}
+##dump.single.ups.to.db("2011-07-06", "2015-08-20", ups="serverL")
+##dump.single.ups.to.db("2011-07-06", "2015-08-20", ups="serverR")
+##dump.single.ups.to.db("2011-07-06", "2013-01-03", ups="forumA")
+##dump.single.ups.to.db("2011-07-06", "2015-08-20", ups="forumB")
+## There is a gap in the data on 2013-01-17
+##dump.single.ups.to.db("2013-03-18", "2015-08-20", ups="forumB")
+
+##' @author David Sterratt
+##' @export
+get.single.ups.database <- function(from, to, ups="forumA", ...) {
+  drv <- DBI::dbDriver("PostgreSQL")
+  con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
+  d <- DBI::dbGetQuery(con, paste0("SELECT * FROM forum_ups",
+                                   " WHERE \"Time\" > '", format(from, usetz=TRUE), "'",
+                                   " AND   \"Time\" < '", format(to  , usetz=TRUE), "'",
+                                   " AND   \"UPS\" LIKE '", ups , "'",
+                                   " ORDER BY \"Time\" ASC"))
+  DBI::dbDisconnect(con)
+  return(d)
+}
+
+##' @param power.factor Power factor from which to compute real power
+##' from apparent power. If this \code{NA}, use the real power
+##' supplied by the UPS
+##' @author David Sterratt
+##' @export
+get.single.ups <- function(from, to, ups="forumA", cache=TRUE, method="database", power.factor=1, ...) {
+  from <- as.POSIXlt(from)
+  to <- as.POSIXlt(to)
+
+  if (method=="database") {
+    d <- get.single.ups.database(from, to, ups=ups)
+  } else {
+    ## Create list of dates from which to get data.
+    dates <- as.list(seq.Date(as.Date(trunc(as.POSIXlt(from + 1, tz="GMT"), "day")),
+                            to=as.Date(to), by=1))
+
+    d <- do.call(rbind, lapply(dates, function(d) {
+                                 get.single.ups.date(d, ups, ...)
+                               }))
+    d <- subset(d, Time >= from & Time < to)
+  }
   
   ## Compute apparent power in VA - current is in dA; voltage is V
   d <- dplyr::mutate(d, L1S=L1V*L1I/10)
@@ -120,7 +168,8 @@ get.single.ups.hourly <- function(from, to,
 
   ## Create bins in which to aggregate the data
   if (nrow(d) > 0) {
-    bins <- cut(d$Time, "hours") # , labels=times[-1]-30*60)
+    ## Have to do this in GMT for stable labels
+    bins <- cut(as.POSIXlt(d$Time, tz="GMT"), "hours") # , labels=times[-1]-30*60)
     if (any(!is.na(bins))) {
       ## Agregate the data
       ad <- aggregate(P.kW ~ bins, data=d, FUN=mean)
@@ -156,7 +205,7 @@ get.single.ups.hourly <- function(from, to,
 ##' @author David Sterratt
 ##' @export
 get.ups.hourly <- function(from, to,
-                                upss=c("forumA", "forumB"), ...) {
+                           upss=c("forumA", "forumB"), ...) {
 
   dat <-  get.single.ups.hourly(from, to, upss[1], ...)
   for (ups in upss[-1]) {

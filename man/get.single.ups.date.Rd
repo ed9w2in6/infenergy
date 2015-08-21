@@ -4,16 +4,12 @@
 \alias{get.single.ups.date}
 \title{Get one day's data from a UPS}
 \usage{
-get.single.ups.date(date, ups = "forumA", power.factor = 1, cache = TRUE)
+get.single.ups.date(date, ups = "forumA", cache = TRUE)
 }
 \arguments{
 \item{date}{Day on which to get data}
 
 \item{ups}{UPS from which to get data}
-
-\item{power.factor}{Power factor from which to compute real power
-from apparent power. If this \code{NA}, use the real power
-supplied by the UPS}
 
 \item{cache}{If \code{prefer}, use cached data if available, but
 otherwise use source data. If \code{use}, only used cached data,
