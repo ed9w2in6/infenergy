@@ -101,7 +101,7 @@ plot.hourly <- function(dat, col=NULL,
 ##' @author David Sterratt
 ##' @method plot daily
 ##' @export
-plot.daily <- function(dat, col=NULL, ylim=NULL, per.hour=FALSE) {
+plot.daily <- function(dat, col=NULL, ylim=NULL, per.hour=FALSE, main=NA) {
   from <- attr(dat, "from")
   to <- attr(dat, "to")
   Time <- dat$Time
@@ -119,7 +119,7 @@ plot.daily <- function(dat, col=NULL, ylim=NULL, per.hour=FALSE) {
     ylim <- c(0, max(apply(dat, 2, sum)))
   ylab <- ifelse(per.hour, "kW", "kWh per day")
   stepplot(Time, dat, xaxt="n", col=col, ylim=ylim,
-       ylab=ylab, main=paste(from, "to", to))
+       ylab=ylab, main=ifelse(is.na(main), paste(from, "to", to)), main)
 
   ## Lines indicating start of month
   t0 <- as.POSIXlt(Time[1]) 
@@ -139,7 +139,7 @@ plot.daily <- function(dat, col=NULL, ylim=NULL, per.hour=FALSE) {
 ##' @author David Sterratt
 ##' @method plot weekly
 ##' @export
-plot.weekly <- function(dat, col=NULL, ylim=NULL) {
+plot.weekly <- function(dat, col=NULL, ylim=NULL, month.bars=TRUE, year.bars=FALSE, main=NULL, ylab=NULL,...) {
   from <- attr(dat, "from")
   to <- attr(dat, "to")
   Time <- dat$Time
@@ -152,17 +152,33 @@ plot.weekly <- function(dat, col=NULL, ylim=NULL) {
 
   if (is.null(ylim))
     ylim <- c(0, max(apply(dat, 2, sum)))
-  ylab <- "kWh per week"
+  ylab <- ifelse(is.null(ylab), "kWh per week", ylab)
   stepplot(Time, dat, xaxt="n", col=col, ylim=ylim,
-       ylab=ylab, main=paste(from, "to", to))
+           ylab=ylab, bty="n", yaxt="n",
+           main=ifelse(is.null(main), paste(from, "to", to), main),
+           ...)
 
-  ## Lines indicating start of month
-  t0 <- as.POSIXlt(Time[1]) 
-  t1 <- as.POSIXlt(Time[length(Time)] + 24*60*60)
-  locs <- as.POSIXct(unique(strftime(Time, "%Y-%m-01")))
-  lines(rbind(locs, locs, NA), rep(c(ylim, NA), length(locs)))
-  axis(1, at=locs, labels=NA)
-  ## Positions for month labels
-  locs <- locs + 15*24*60*60
-  axis(1, at=locs, labels=strftime(locs, "%b"), tick=FALSE)
+  if (month.bars) {
+    ## Lines indicating start of month
+    t0 <- as.POSIXlt(Time[1]) 
+    t1 <- as.POSIXlt(Time[length(Time)] + 24*60*60)
+    locs <- as.POSIXct(unique(strftime(Time, "%Y-%m-01")))
+    print(locs)
+    lines(rbind(locs, locs, NA), rep(c(ylim, NA), length(locs)))
+    axis(1, at=locs, labels=NA)
+    ## Positions for month labels
+    locs <- locs + 15*24*60*60
+    axis(1, at=locs, labels=strftime(locs, "%b"), tick=FALSE)
+  }
+  if (year.bars) {
+    ## Lines indicating start of month
+    t0 <- as.POSIXlt(Time[1])
+    year <- as.numeric(strftime(t0, "%Y")) + 1
+    locs <- as.POSIXct(seq(as.Date(paste0(year, "-01-01")), as.Date(Time[length(Time)]), by="year"))
+    lines(rbind(locs, locs, NA), rep(c(ylim, NA), length(locs)))
+    axis(1, at=locs, labels=strftime(locs, "%b %Y"), pos=0)
+    axis(1, at=c(min(Time), max(Time)), labels=c(NA, NA), pos=0, tcl=0)
+    axis(2, pos=min(Time), las=1)    
+  }
+
 }
