@@ -116,9 +116,6 @@ get.inf.single.ups.data.hourly <- function(from, to,
   ## Get the data
   d <- get.inf.single.ups(from, to, ups, ...)
     
-  ## Bin into hourly chunks
-  ## times <- seq.POSIXt(as.POSIXlt(from),
-  ## to=as.POSIXlt(to), by="1 hour")
 
   ## Create bins in which to aggregate the data
   if (nrow(d) > 0) {
@@ -133,7 +130,13 @@ get.inf.single.ups.data.hourly <- function(from, to,
       colnames(d) <- c("Time", "kWh")
     }
   }
-  missing.times <- as.POSIXct(setdiff(as.POSIXct(levels(bins), tz="GMT"), d$Time),
+  ## print(levels(bins))
+  ## print(d$Time)
+  ## Bin into hourly chunks
+  times <- seq.POSIXt(as.POSIXlt(from),
+                      to=as.POSIXlt(to)-1800, by="1 hour")
+
+  missing.times <- as.POSIXct(setdiff(as.POSIXct(times, tz="GMT"), d$Time),
                               origin=as.POSIXct("1970-01-01", tz="GMT"), tz="GMT")
   if (length(missing.times > 0)) {
     d <- rbind(d, data.frame(Time=missing.times, kWh=NA))
@@ -168,6 +171,8 @@ get.inf.ups.data.hourly <- function(from, to,
   }
   ad <- dat[,1]
   ad <- data.frame(Time=dat[,1], kWh=rowMeans(kWh, na.rm=TRUE)*length(upss))
+  ## rowMeans(cbind(NA, NA)) == NaN !!
+  ad$kWh[is.nan(ad$kWh)] <- NA
   ## ad <- aggregate(kWh ~ Time, data=dat, FUN=sum)
   attr(ad, "from") <- from
   attr(ad, "to") <- to
