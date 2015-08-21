@@ -54,39 +54,13 @@ get.inf.single.ups.date <- function(date, ups="forumA", power.factor=1, cache=TR
                        "L1I", "L2I", "L3I", # Current in dA
                        "L1P", "L2P", "L3P", # Real power in W
                        "L1L", "L2L", "L3L") # Percentage load
+
+    times <- as.POSIXct(dat[,"UnixTime"], origin=as.POSIXct("1970-01-01", tz="GMT"), tz="GMT")
+    ## Convert Unix time into POSIX time
+    dat$Time <-times
+    dat$UPS <- ups
     write.csv(dat, cachefile, row.names=FALSE)
   }
-  #print(showConnections())
-  #closeAllConnections()
-  ## Convert Unix time into POSIX time
-  times <- as.POSIXct(dat[,"UnixTime"], origin=as.POSIXct("1970-01-01", tz="GMT"), tz="GMT")
-  dat$Time <-times
-  dat$UPS <- ups
-
-  ## Compute apparent power in VA - current is in dA; voltage is V
-  dat <- dplyr::mutate(dat, L1S=L1V*L1I/10)
-  dat <- dplyr::mutate(dat, L2S=L2V*L2I/10)
-  dat <- dplyr::mutate(dat, L3S=L3V*L3I/10)
-
-  if (is.na(power.factor)) {
-    ## Compute power factor
-    dat <- dplyr::mutate(dat, L1PF=L1P/L1S)
-    dat <- dplyr::mutate(dat, L2PF=L2P/L2S)
-    dat <- dplyr::mutate(dat, L3PF=L3P/L3S)
-  } else {
-    ## Set power factor
-    dat <- dplyr::mutate(dat, L1PF=power.factor)
-    dat <- dplyr::mutate(dat, L2PF=power.factor)
-    dat <- dplyr::mutate(dat, L3PF=power.factor)
-    ## Compute real power from apparent power
-    dat <- dplyr::mutate(dat, L1P=power.factor*L1S)
-    dat <- dplyr::mutate(dat, L2P=power.factor*L2S)
-    dat <- dplyr::mutate(dat, L3P=power.factor*L3S)
-  }
-    
-  ## Compute power from the the voltage and current in each of the
-  ## three phases - current is in dA, voltage is V
-  dat <- dplyr::mutate(dat, P.kW = (L1P + L2P + L3P)/1000)
   return(dat)
 }
 
@@ -101,6 +75,32 @@ get.inf.single.ups <- function(from, to, ups="forumA", cache=TRUE, ...) {
                                get.inf.single.ups.date(d, ups, ...)
                              }))
   d <- subset(d, Time >= from & Time < to)
+  
+  ## Compute apparent power in VA - current is in dA; voltage is V
+  d <- dplyr::mutate(d, L1S=L1V*L1I/10)
+  d <- dplyr::mutate(d, L2S=L2V*L2I/10)
+  d <- dplyr::mutate(d, L3S=L3V*L3I/10)
+
+  if (is.na(power.factor)) {
+    ## Compute power factor
+    d <- dplyr::mutate(d, L1PF=L1P/L1S)
+    d <- dplyr::mutate(d, L2PF=L2P/L2S)
+    d <- dplyr::mutate(d, L3PF=L3P/L3S)
+  } else {
+    ## Set power factor
+    d <- dplyr::mutate(d, L1PF=power.factor)
+    d <- dplyr::mutate(d, L2PF=power.factor)
+    d <- dplyr::mutate(d, L3PF=power.factor)
+    ## Compute real power from apparent power
+    d <- dplyr::mutate(d, L1P=power.factor*L1S)
+    d <- dplyr::mutate(d, L2P=power.factor*L2S)
+    d <- dplyr::mutate(d, L3P=power.factor*L3S)
+  }
+    
+  ## Compute power from the the voltage and current in each of the
+  ## three phases - current is in dA, voltage is V
+  d <- dplyr::mutate(d, P.kW = (L1P + L2P + L3P)/1000)
+
   return(d)
 }
 
