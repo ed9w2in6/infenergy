@@ -56,36 +56,37 @@ get.inf.single.ups.date <- function(date, ups="forumA", power.factor=1, cache=TR
                        "L1L", "L2L", "L3L") # Percentage load
     write.csv(dat, cachefile, row.names=FALSE)
   }
-  
+  #print(showConnections())
+  #closeAllConnections()
   ## Convert Unix time into POSIX time
   times <- as.POSIXct(dat[,"UnixTime"], origin=as.POSIXct("1970-01-01", tz="GMT"), tz="GMT")
   dat$Time <-times
   dat$UPS <- ups
 
   ## Compute apparent power in VA - current is in dA; voltage is V
-  dat <- mutate(dat, L1S=L1V*L1I/10)
-  dat <- mutate(dat, L2S=L2V*L2I/10)
-  dat <- mutate(dat, L3S=L3V*L3I/10)
+  dat <- dplyr::mutate(dat, L1S=L1V*L1I/10)
+  dat <- dplyr::mutate(dat, L2S=L2V*L2I/10)
+  dat <- dplyr::mutate(dat, L3S=L3V*L3I/10)
 
   if (is.na(power.factor)) {
     ## Compute power factor
-    dat <- mutate(dat, L1PF=L1P/L1S)
-    dat <- mutate(dat, L2PF=L2P/L2S)
-    dat <- mutate(dat, L3PF=L3P/L3S)
+    dat <- dplyr::mutate(dat, L1PF=L1P/L1S)
+    dat <- dplyr::mutate(dat, L2PF=L2P/L2S)
+    dat <- dplyr::mutate(dat, L3PF=L3P/L3S)
   } else {
     ## Set power factor
-    dat <- mutate(dat, L1PF=power.factor)
-    dat <- mutate(dat, L2PF=power.factor)
-    dat <- mutate(dat, L3PF=power.factor)
+    dat <- dplyr::mutate(dat, L1PF=power.factor)
+    dat <- dplyr::mutate(dat, L2PF=power.factor)
+    dat <- dplyr::mutate(dat, L3PF=power.factor)
     ## Compute real power from apparent power
-    dat <- mutate(dat, L1P=power.factor*L1S)
-    dat <- mutate(dat, L2P=power.factor*L2S)
-    dat <- mutate(dat, L3P=power.factor*L3S)
+    dat <- dplyr::mutate(dat, L1P=power.factor*L1S)
+    dat <- dplyr::mutate(dat, L2P=power.factor*L2S)
+    dat <- dplyr::mutate(dat, L3P=power.factor*L3S)
   }
     
   ## Compute power from the the voltage and current in each of the
   ## three phases - current is in dA, voltage is V
-  dat <- mutate(dat, P.kW = (L1P + L2P + L3P)/1000)
+  dat <- dplyr::mutate(dat, P.kW = (L1P + L2P + L3P)/1000)
   return(dat)
 }
 
