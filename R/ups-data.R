@@ -111,12 +111,23 @@ get.single.ups.database <- function(from, to, ups="forumA", ...) {
   return(d)
 }
 
+
+##' @title Get data from a UPS
+##' @param from Date from which to collect data
+##' @param to Date to which to collect data
+##' @param ups UPS from which to get data
+##' @param cache cache If \code{prefer}, use cached data if available, but
+##' otherwise use source data. If \code{use}, only used cached data,
+##' and don't try source data. If \code{none}, don't use.
+##' @param method If \code{database}, collect from the database; otherwise
+##' from the source UPS files 
 ##' @param power.factor Power factor from which to compute real power
 ##' from apparent power. If this \code{NA}, use the real power
 ##' supplied by the UPS
+##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.single.ups <- function(from, to, ups="forumA", cache=TRUE, method="database", power.factor=1, ...) {
+get.single.ups <- function(from, to, ups="forumA", cache=TRUE, method="database", power.factor=1) {
   from <- as.POSIXlt(from)
   to <- as.POSIXlt(to)
 
@@ -128,7 +139,7 @@ get.single.ups <- function(from, to, ups="forumA", cache=TRUE, method="database"
                             to=as.Date(to), by=1))
 
     d <- do.call(rbind, lapply(dates, function(d) {
-                                 get.single.ups.date(d, ups, ...)
+                                 get.single.ups.date(d, ups, cache=cache)
                                }))
     d <- subset(d, Time >= from & Time < to)
   }
