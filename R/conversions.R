@@ -144,3 +144,42 @@ weekly.hourly <- function(x) {
 weekly.cumulative <- function(x) {
   return(weekly(daily(x)))
 }
+
+##' @title Yearly representation of data
+##' @param x \code{cumulative}, \code{hourly} \&c object
+##' @author David Sterratt
+##' @export
+yearly <- function(x) {
+  UseMethod("yearly")
+}
+
+##' @export
+yearly.default <- function(x) {
+}
+
+##' @export
+##' @method yearly daily
+yearly.daily <- function(x) {
+  ## Find the first and last time we can interpolate from
+  from <- as.POSIXlt(attr(x, "from"))
+  to <- as.POSIXlt(attr(x, "to"))
+
+  ## Find the first date after from that is a Monday
+  ## Check out seq.Date for nice way of doing this!
+  from.year <- as.numeric(strftime(from, "%Y")) + 1
+  from <- as.POSIXlt(paste0(from.year, "-01-01"))
+  ## Bin into yearly chunks, with the date boundary always being
+  ## midnight in any timezone, e.g. BST or GMT
+  dates <- round(seq(from, to, by="year"), units="day")
+  bins <- cut(x$Time, dates, labels=seq(from.year, len=length(dates) - 1, by=1))
+  x$Time <- NULL
+  ad <- aggregate(. ~ bins, data=x, FUN=sum)
+  d <- ad
+  # d <- with(ad, data.frame(Time=as.POSIXct(ad$bins), ad))
+  # d$bins <- NULL
+  
+  attr(d, "from") <- from
+  attr(d, "to") <- to
+  class(d) <-  c("yearly", class(d))
+  return(d)
+}
