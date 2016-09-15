@@ -11,7 +11,7 @@ cachedir <- "cache"
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.single.ups.date <- function(date, ups="forumA", cache=TRUE) {
+get.single.ups.file <- function(date, ups="forumA", cache=TRUE) {
 
   blank.data <- function(date) {
     warning(paste("Some data points may be missing from", ups, "data on", date))
@@ -83,7 +83,7 @@ dump.single.ups.to.db <- function(from, to, ups="forumA") {
   con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
   tabname <- "forum_ups"
   for (d in dates) {
-    dat <- get.single.ups.date(d, ups, cache=FALSE)
+    dat <- get.single.ups.file(d, ups, cache=FALSE)
     if (!is.null(dat)) {
       print(paste("Writing to db", d))
       DBI::dbWriteTable(con, tabname, dat,
@@ -108,7 +108,7 @@ dump.single.ups.to.db <- function(from, to, ups="forumA") {
 ##' @param to Date to which to collect data
 ##' @param ups UPS from which to get data
 ##' @export
-get.single.ups.database <- function(from, to, ups="forumA") {
+get.single.ups.db <- function(from, to, ups="forumA") {
   drv <- DBI::dbDriver("PostgreSQL")
   con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
   d <- DBI::dbGetQuery(con, paste0("SELECT * FROM forum_ups",
@@ -126,28 +126,28 @@ get.single.ups.database <- function(from, to, ups="forumA") {
 ##' @param to Date to which to collect data
 ##' @param ups UPS from which to get data
 ##' @param cache Relevant when method is to collect from source UPS
-##'   files. See \code{\link{get.single.ups.date}}.
-##' @param method If \code{database}, collect from the database;
-##'   otherwise from the source UPS files
+##'   files. See \code{\link{get.single.ups.file}}.
+##' @param method If \code{db}, collect from the database; otherwise
+##'   from the source UPS files
 ##' @param power.factor Power factor from which to compute real power
 ##'   from apparent power. If this \code{NA}, use the real power
 ##'   supplied by the UPS
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.single.ups <- function(from, to, ups="forumA", cache=TRUE, method="database", power.factor=1) {
+get.single.ups <- function(from, to, ups="forumA", cache=TRUE, method="db", power.factor=1) {
   from <- as.POSIXlt(from)
   to <- as.POSIXlt(to)
 
-  if (method=="database") {
-    d <- get.single.ups.database(from, to, ups=ups)
+  if (method=="db") {
+    d <- get.single.ups.db(from, to, ups=ups)
   } else {
     ## Create list of dates from which to get data.
     dates <- as.list(seq.Date(as.Date(trunc(as.POSIXlt(from + 1, tz="GMT"), "day")),
                             to=as.Date(to), by=1))
 
     d <- do.call(rbind, lapply(dates, function(d) {
-                                 get.single.ups.date(d, ups, cache=cache)
+                                 get.single.ups.file(d, ups, cache=cache)
                                }))
     d <- subset(d, Time >= from & Time < to)
   }
@@ -185,7 +185,7 @@ get.single.ups <- function(from, to, ups="forumA", cache=TRUE, method="database"
 ##' @param to Date to which to collect data
 ##' @param ups UPS from which to collect data
 ##' @param ... Arguments passed to \code{\link{get.single.ups}} and
-##'   \code{\link{get.single.ups.date}}.
+##'   \code{\link{get.single.ups.file}}.
 ##' @return Data frame containing the columns \code{Time} of centre of
 ##'   interval, \code{kWh} energy used in that interval in kWh.
 ##' @author David Sterratt

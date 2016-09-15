@@ -4,8 +4,8 @@
 \alias{get.single.ups}
 \title{Get data from a UPS}
 \usage{
-get.single.ups(from, to, ups = "forumA", cache = TRUE,
-  method = "database", power.factor = 1)
+get.single.ups(from, to, ups = "forumA", cache = TRUE, method = "db",
+  power.factor = 1)
 }
 \arguments{
 \item{from}{Date from which to collect data}
