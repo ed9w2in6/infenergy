@@ -68,7 +68,11 @@ get.single.ups.date <- function(date, ups="forumA", cache=TRUE) {
   return(dat)
 }
 
+##' @title Dump UPS data to database 
 ##' @author David Sterratt
+##' @param from Date from which to collect data
+##' @param to Date to which to collect data
+##' @param ups UPS from which to get data
 ##' @export
 dump.single.ups.to.db <- function(from, to, ups="forumA") {
   from <- as.POSIXlt(from)
@@ -97,9 +101,14 @@ dump.single.ups.to.db <- function(from, to, ups="forumA") {
 ## There is a gap in the data on 2013-01-17
 ##dump.single.ups.to.db("2013-03-18", "2015-08-20", ups="forumB")
 ## dump.single.ups.to.db("2011-07-06", "2015-08-20", ups="forumB")
+
+##' @title Get data for a single UPS from database
 ##' @author David Sterratt
+##' @param from Date from which to collect data
+##' @param to Date to which to collect data
+##' @param ups UPS from which to get data
 ##' @export
-get.single.ups.database <- function(from, to, ups="forumA", ...) {
+get.single.ups.database <- function(from, to, ups="forumA") {
   drv <- DBI::dbDriver("PostgreSQL")
   con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
   d <- DBI::dbGetQuery(con, paste0("SELECT * FROM forum_ups",
@@ -116,14 +125,13 @@ get.single.ups.database <- function(from, to, ups="forumA", ...) {
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
 ##' @param ups UPS from which to get data
-##' @param cache cache If \code{prefer}, use cached data if available, but
-##' otherwise use source data. If \code{use}, only used cached data,
-##' and don't try source data. If \code{none}, don't use.
-##' @param method If \code{database}, collect from the database; otherwise
-##' from the source UPS files 
+##' @param cache Relevant when method is to collect from source UPS
+##'   files. See \code{\link{get.single.ups.date}}.
+##' @param method If \code{database}, collect from the database;
+##'   otherwise from the source UPS files
 ##' @param power.factor Power factor from which to compute real power
-##' from apparent power. If this \code{NA}, use the real power
-##' supplied by the UPS
+##'   from apparent power. If this \code{NA}, use the real power
+##'   supplied by the UPS
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
@@ -176,12 +184,14 @@ get.single.ups <- function(from, to, ups="forumA", cache=TRUE, method="database"
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
 ##' @param ups UPS from which to collect data
+##' @param ... Arguments passed to \code{\link{get.single.ups}} and
+##'   \code{\link{get.single.ups.date}}.
 ##' @return Data frame containing the columns \code{Time} of centre of
-##' interval, \code{kWh} energy used in that interval in kWh.
+##'   interval, \code{kWh} energy used in that interval in kWh.
 ##' @author David Sterratt
 ##' @export
 get.single.ups.hourly <- function(from, to,
-                                           ups="forumA", cache=TRUE, ...) {
+                                           ups="forumA", ...) {
   ## Get the data
   d <- get.single.ups(from, to, ups, ...)
     
@@ -219,6 +229,7 @@ get.single.ups.hourly <- function(from, to,
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
 ##' @param upss Vector of UPSs from which to collect data
+##' @param ... Arguments passed to \code{\link{get.single.ups.hourly}}
 ##' @return Data frame with columns \code{Time} (the centre of the
 ##' time period) and \code{kWh} (energy use in kWh in the hour
 ##' centred on \code{Time})

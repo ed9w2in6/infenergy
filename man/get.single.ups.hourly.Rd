@@ -4,7 +4,7 @@
 \alias{get.single.ups.hourly}
 \title{Get data in hourly chunks from an informatics UPS log.}
 \usage{
-get.single.ups.hourly(from, to, ups = "forumA", cache = TRUE, ...)
+get.single.ups.hourly(from, to, ups = "forumA", ...)
 }
 \arguments{
 \item{from}{Date from which to collect data}
@@ -12,10 +12,13 @@ get.single.ups.hourly(from, to, ups = "forumA", cache = TRUE, ...)
 \item{to}{Date to which to collect data}
 
 \item{ups}{UPS from which to collect data}
+
+\item{...}{Arguments passed to \code{\link{get.single.ups}} and
+\code{\link{get.single.ups.file}}.}
 }
 \value{
 Data frame containing the columns \code{Time} of centre of
-interval, \code{kWh} energy used in that interval in kWh.
+  interval, \code{kWh} energy used in that interval in kWh.
 }
 \author{
 David Sterratt

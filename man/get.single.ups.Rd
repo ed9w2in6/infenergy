@@ -14,11 +14,10 @@ get.single.ups(from, to, ups = "forumA", cache = TRUE,
 
 \item{ups}{UPS from which to get data}
 
-\item{cache}{cache If \code{prefer}, use cached data if available, but
-otherwise use source data. If \code{use}, only used cached data,
-and don't try source data. If \code{none}, don't use.}
+\item{cache}{Relevant when method is to collect from source UPS
+files. See \code{\link{get.single.ups.file}}.}
 
-\item{method}{If \code{database}, collect from the database; otherwise
+\item{method}{If \code{db}, collect from the database; otherwise
 from the source UPS files}
 
 \item{power.factor}{Power factor from which to compute real power

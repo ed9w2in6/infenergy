@@ -12,6 +12,8 @@ get.ups.hourly(from, to, upss = c("forumA", "forumB"), ...)
 \item{to}{Date to which to collect data}
 
 \item{upss}{Vector of UPSs from which to collect data}
+
+\item{...}{Arguments passed to \code{\link{get.single.ups.hourly}}}
 }
 \value{
 Data frame with columns \code{Time} (the centre of the
