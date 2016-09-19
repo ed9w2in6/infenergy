@@ -35,13 +35,23 @@ get.single.ups.file <- function(date, ups="forumA", cache=TRUE) {
     year <- strftime(date, "%Y")
     if (year != strftime(Sys.time(), "%Y")) {
       base.url <- file.path(base.url, year)
+      file <- file.path(base.url,
+                        paste(ups, "_power.raw.",
+                              strftime(date, "%F"),
+                              ".gz", sep=""))
+      message(file)
+      tfile <- tempfile()
+      download.file(file, tfile)
+      con <- gzfile(tfile)
+    } else {
+      file <- file.path(base.url,
+                        paste(ups, "_power.raw.",
+                              strftime(date, "%F"),
+                              sep=""))
+      message(file)
+      con <- url(file)
     }
-    file <- file.path(base.url,
-                      paste(ups, "_power.raw.",
-                            strftime(date, "%F"), sep=""))
     dat <- NULL
-    print(file)
-    con <- url(file)
     dat <- tryCatch(read.csv(con, header=FALSE),
                     error=function(e) {
                       close(con)
