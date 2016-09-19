@@ -4,8 +4,8 @@
 \alias{get.single.ups}
 \title{Get data from a UPS}
 \usage{
-get.single.ups(from, to, ups = "forumA", cache = TRUE, method = "db",
-  power.factor = 1)
+get.single.ups(from, to, ups = "forumA", method = "db", power.factor = 1,
+  ...)
 }
 \arguments{
 \item{from}{Date from which to collect data}
@@ -14,15 +14,14 @@ get.single.ups(from, to, ups = "forumA", cache = TRUE, method = "db",
 
 \item{ups}{UPS from which to get data}
 
-\item{cache}{Relevant when method is to collect from source UPS
-files. See \code{\link{get.single.ups.file}}.}
-
 \item{method}{If \code{db}, collect from the database; otherwise
 from the source UPS files}
 
 \item{power.factor}{Power factor from which to compute real power
 from apparent power. If this \code{NA}, use the real power
 supplied by the UPS}
+
+\item{...}{Arguments passed to \code{\link{get.single.ups.file}}}
 }
 \value{
 Table with columns \code{Time} and \code{kWh}

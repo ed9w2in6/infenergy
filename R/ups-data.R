@@ -1,8 +1,6 @@
 cachedir <- "cache"
 
-##' Get one day's data from an Informatics server
-##'
-##' @title Get one day's data from a UPS
+##' @title Get one day's data from a single UPS from Netmon logfiles
 ##' @param date Day on which to get data
 ##' @param ups UPS from which to get data
 ##' @param cache If \code{prefer}, use cached data if available, but
@@ -11,8 +9,7 @@ cachedir <- "cache"
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.single.ups.file <- function(date, ups="forumA", cache=TRUE) {
-
+get.single.ups.file.one.day <- function(date, ups="forumA", cache=TRUE) {
   blank.data <- function(date) {
     warning(paste("Some data points may be missing from", ups, "data on", date))
       times <- seq.POSIXt(as.POSIXct(date)+1800,
@@ -78,6 +75,28 @@ get.single.ups.file <- function(date, ups="forumA", cache=TRUE) {
   return(dat)
 }
 
+##' @title Get  data from a single UPS from Netmon logfiles 
+##' @author David Sterratt
+##' @param from Date from which to collect data
+##' @param to Date to which to collect data
+##' @param ups UPS from which to get data
+##' @param cache If \code{prefer}, use cached data if available, but
+##' otherwise use source data. If \code{use}, only used cached data,
+##' and don't try source data. If \code{none}, don't use.
+##' @return Table with columns \code{Time} and \code{kWh}
+##' @export
+get.single.ups.file <- function(from, to, ups="forumA", cache=TRUE) {
+  ## Create list of dates from which to get data.
+  dates <- as.list(seq.Date(as.Date(trunc(as.POSIXlt(from + 1, tz="GMT"), "day")),
+                            to=as.Date(to), by=1))
+
+  dat <- do.call(rbind, lapply(dates, function(d) {
+    get.single.ups.file.one.day(d, ups, cache=cache)
+  }))
+  dat <- subset(dat, Time >= from & Time < to)
+  return(dat)
+}
+
 ##' @title Dump UPS data to database 
 ##' @author David Sterratt
 ##' @param from Date from which to collect data
@@ -135,31 +154,23 @@ get.single.ups.db <- function(from, to, ups="forumA") {
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
 ##' @param ups UPS from which to get data
-##' @param cache Relevant when method is to collect from source UPS
-##'   files. See \code{\link{get.single.ups.file}}.
 ##' @param method If \code{db}, collect from the database; otherwise
 ##'   from the source UPS files
 ##' @param power.factor Power factor from which to compute real power
 ##'   from apparent power. If this \code{NA}, use the real power
 ##'   supplied by the UPS
+##' @param ... Arguments passed to \code{\link{get.single.ups.file}}
 ##' @return Table with columns \code{Time} and \code{kWh}
 ##' @author David Sterratt
 ##' @export
-get.single.ups <- function(from, to, ups="forumA", cache=TRUE, method="db", power.factor=1) {
+get.single.ups <- function(from, to, ups="forumA", method="db", power.factor=1, ...) {
   from <- as.POSIXlt(from)
   to <- as.POSIXlt(to)
 
   if (method=="db") {
     d <- get.single.ups.db(from, to, ups=ups)
   } else {
-    ## Create list of dates from which to get data.
-    dates <- as.list(seq.Date(as.Date(trunc(as.POSIXlt(from + 1, tz="GMT"), "day")),
-                            to=as.Date(to), by=1))
-
-    d <- do.call(rbind, lapply(dates, function(d) {
-                                 get.single.ups.file(d, ups, cache=cache)
-                               }))
-    d <- subset(d, Time >= from & Time < to)
+    d <- get.single.ups.file(from, to, ups=ups, ...)
   }
   
   ## Compute apparent power in VA - current is in dA; voltage is V
