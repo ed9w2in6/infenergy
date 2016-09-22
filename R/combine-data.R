@@ -7,7 +7,7 @@
 ##' @author David Sterratt
 ##' @export
 combine.data.hourly <- function(comps=list(), tot=NA) {
-  if (!is.na(tot)) {
+  if (!any(is.na(tot))) {
     dat <- data.frame(Time=tot[,"Time"])
     other <- tot$kWh
   } else {
@@ -15,7 +15,7 @@ combine.data.hourly <- function(comps=list(), tot=NA) {
   }
   for (n in names(comps)) {
     comp <- comps[[n]]
-    if (!is.na(tot)) {
+    if (!any(is.na(tot))) {
       if (attr(comp, "from") != attr(tot, "from")) {
         stop(paste("From date of ", n, "component doesn't match from date of total"))
       }
@@ -28,7 +28,7 @@ combine.data.hourly <- function(comps=list(), tot=NA) {
     colnames(col) <- n
     dat <- data.frame(dat, col)
   }
-  if (!is.na(tot)) {
+  if (!any(is.na(tot))) {
     dat <- data.frame(dat, Other=other)
     attr(dat, "from") <- attr(tot, "from")
     attr(dat, "to")   <- attr(tot, "to")
