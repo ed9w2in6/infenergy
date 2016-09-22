@@ -4,7 +4,7 @@
 \alias{dump.single.ups.to.db}
 \title{Dump UPS data to database}
 \usage{
-dump.single.ups.to.db(from, to, ups = "forumA")
+dump.single.ups.to.db(from, to, ups = "forumA", dry.run = FALSE)
 }
 \arguments{
 \item{from}{Date from which to collect data}
@@ -12,6 +12,9 @@ dump.single.ups.to.db(from, to, ups = "forumA")
 \item{to}{Date to which to collect data}
 
 \item{ups}{UPS from which to get data}
+
+\item{dry.run}{If \code{TRUE} do not dump data, but instead report
+on what owould be done}
 }
 \author{
 David Sterratt

@@ -97,13 +97,15 @@ get.single.ups.file <- function(from, to, ups="forumA", cache=TRUE) {
   return(dat)
 }
 
-##' @title Dump UPS data to database 
+##' @title Dump UPS data to database
 ##' @author David Sterratt
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
 ##' @param ups UPS from which to get data
+##' @param dry.run If \code{TRUE} do not dump data, but instead report
+##'   on what owould be done
 ##' @export
-dump.single.ups.to.db <- function(from, to, ups="forumA") {
+dump.single.ups.to.db <- function(from, to, ups="forumA", dry.run=FALSE) {
   from <- as.POSIXlt(from)
   ## Create list of dates from which to get data.
   dates <- as.list(seq.Date(as.Date(trunc(as.POSIXlt(from + 1, tz="GMT"), "day")),
@@ -112,12 +114,30 @@ dump.single.ups.to.db <- function(from, to, ups="forumA") {
   con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
   tabname <- "forum_ups"
   for (d in dates) {
-    dat <- get.single.ups.file(d, ups, cache=FALSE)
-    if (!is.null(dat)) {
-      print(paste("Writing to db", d))
-      DBI::dbWriteTable(con, tabname, dat,
-                        append=DBI::dbExistsTable(con, tabname),
-                        row.names=FALSE)
+    ## Get data from file
+    dat <- get.single.ups.file.one.day(d, ups, cache=FALSE)
+
+    ## Make sure we don't add data already in the db
+    dat.db <- get.single.ups.db(d - 1, d + 1, ups)
+    dat <- subset(dat, !(UnixTime %in% dat.db$UnixTime))
+    if (dry.run) {
+      if (nrow(dat) > 0) {
+        message(paste("Date:", d, "would add:"))
+        print(summary(dat))
+      } else {
+        message(paste("All data already in db on", d))
+      }
+    } else {
+      if (!is.null(dat)) {
+        if (nrow(dat) > 0) {
+          message(paste("Writing to db", d))
+          DBI::dbWriteTable(con, tabname, dat,
+                            append=DBI::dbExistsTable(con, tabname),
+                            row.names=FALSE)
+        } else {
+          message(paste("All data already in db on", d))
+        }
+      }
     }
   }
   DBI::dbDisconnect(con)
