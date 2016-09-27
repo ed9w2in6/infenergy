@@ -77,7 +77,7 @@ plot.hourly <- function(dat, col=NULL,
   }
   
   if (is.null(ylim))
-    ylim <- c(0, max(apply(dat, 2, sum)))
+    ylim <- c(0, max(apply(dat, 2, sum, na.rm=TRUE)))
   stepplot(Time, dat, xaxt="n", col=col, ylim=ylim,
            main=paste(from, "to", to), ylab=ylab)
   ## Prettier labels
@@ -116,7 +116,7 @@ plot.daily <- function(dat, col=NULL, ylim=NULL, per.hour=FALSE, main=NA) {
   }
 
   if (is.null(ylim))
-    ylim <- c(0, max(apply(dat, 2, sum)))
+    ylim <- c(0, max(apply(dat, 2, sum, na.rm=TRUE)))
   ylab <- ifelse(per.hour, "kW", "kWh per day")
   stepplot(Time, dat, xaxt="n", col=col, ylim=ylim,
        ylab=ylab, main=ifelse(is.na(main), paste(from, "to", to)), main)
@@ -151,7 +151,7 @@ plot.weekly <- function(dat, col=NULL, ylim=NULL, month.bars=TRUE, year.bars=FAL
   }
 
   if (is.null(ylim))
-    ylim <- c(0, max(apply(dat, 2, sum)))
+    ylim <- c(0, max(apply(dat, 2, sum, na.rm=TRUE)))
   ylab <- ifelse(is.null(ylab), "kWh per week", ylab)
   stepplot(Time, dat, xaxt="n", col=col, ylim=ylim,
            ylab=ylab, bty="n", yaxt="n",
