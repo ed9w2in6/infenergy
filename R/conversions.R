@@ -183,3 +183,52 @@ yearly.daily <- function(x) {
   class(d) <-  c("yearly", class(d))
   return(d)
 }
+
+##' @title Monthly representation of data
+##' @param x \code{cumulative}, \code{hourly} \&c object
+##' @author David Sterratt
+##' @export
+monthly <- function(x) {
+  UseMethod("monthly")
+}
+
+##' @export
+monthly.default <- function(x) {
+}
+
+##' @export
+##' @method monthly daily
+monthly.daily <- function(x) {
+  ## Find the first and last time we can interpolate from
+  from <- as.POSIXlt(attr(x, "from"))
+  to <- as.Date(attr(x, "to"))
+
+  ## Start from beginning of month
+  from <- as.Date(paste0(strftime(from, "%Y-%m-"), "01"))
+  
+  ## Bin into monthly chunks, with the date boundary always being
+  ## midnight in any timezone, e.g. BST or GMT
+  dates <- seq(from, to, by="1 month")
+  bins <- cut(x$Time, as.POSIXlt(dates)) # labels=seq.Date(as.Date(from), as.Date(dates[length(dates) - 1]), by=7))
+  x$Time <- NULL
+  ad <- aggregate(. ~ bins, data=x, FUN=sum)
+  d <- with(ad, data.frame(Time=as.POSIXct(ad$bins), ad))
+  d$bins <- NULL
+  
+  attr(d, "from") <- from
+  attr(d, "to") <- to
+  class(d) <-  c("monthly", class(d))
+  return(d)
+}
+
+##' @export
+##' @method monthly hourly
+monthly.hourly <- function(x) {
+  return(monthly(daily(x)))
+}
+
+##' @export
+##' @method monthly cumulative
+monthly.cumulative <- function(x) {
+  return(monthly(daily(x)))
+}
