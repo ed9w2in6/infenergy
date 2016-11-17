@@ -4,7 +4,7 @@
 \alias{combine.data.hourly}
 \title{Combine hourly data}
 \usage{
-combine.data.hourly(comps = list(), tot = NA)
+combine.data.hourly(comps = list(), tot = NULL)
 }
 \arguments{
 \item{comps}{list of components of hourly energy in

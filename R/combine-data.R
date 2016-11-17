@@ -14,12 +14,15 @@
 ##' meter <- hourly(get.inf.meter.data(from, to))
 ##' combine <- combine.data.hourly(list(Server=server, Forum=forum), tot=meter)
 ##' plot(combine)
-combine.data.hourly <- function(comps=list(), tot=NA) {
-  if (!any(is.na(tot))) {
+combine.data.hourly <- function(comps=list(), tot=NULL) {
+  dat <- data.frame(Time=comps[[1]][,"Time"])
+  if (inherits(tot, "hourly")) {
     dat <- data.frame(Time=tot[,"Time"])
     other <- tot$kWh
   } else {
-    dat <- data.frame(Time=comps[[1]][,"Time"])
+    if (!is.null(tot)) {
+      stop("tot is not an hourly class")
+    }
   }
   for (n in names(comps)) {
     comp <- comps[[n]]
@@ -36,7 +39,7 @@ combine.data.hourly <- function(comps=list(), tot=NA) {
     colnames(col) <- n
     dat <- data.frame(dat, col)
   }
-  if (!any(is.na(tot))) {
+  if (!is.null(tot)) {
     dat <- data.frame(dat, Other=other)
     attr(dat, "from") <- attr(tot, "from")
     attr(dat, "to")   <- attr(tot, "to")
