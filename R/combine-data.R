@@ -26,7 +26,7 @@ combine.data.hourly <- function(comps=list(), tot=NULL) {
   }
   for (n in names(comps)) {
     comp <- comps[[n]]
-    if (!any(is.na(tot))) {
+    if (!is.null(tot)) {
       if (attr(comp, "from") != attr(tot, "from")) {
         stop(paste("From date of ", n, "component doesn't match from date of total"))
       }
