@@ -7,7 +7,11 @@
 hourly(x)
 }
 \arguments{
-\item{x}{\code{cumulative}, \code{halfhourly} \&c object}
+\item{x}{\code{cumulative} or \code{halfhourly} object}
+}
+\value{
+Object with hourly bins starting from "to" attribute of
+  \code{x} and ending with "from" attribute of \code{x}
 }
 \author{
 David Sterratt

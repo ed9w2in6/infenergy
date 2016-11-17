@@ -1,5 +1,7 @@
 ##' @title Hourly representation of data
-##' @param x \code{cumulative}, \code{halfhourly} \&c object
+##' @param x \code{cumulative} or \code{halfhourly} object
+##' @return Object with hourly bins starting from "to" attribute of
+##'   \code{x} and ending with "from" attribute of \code{x}
 ##' @author David Sterratt
 ##' @export
 hourly <- function(x) {
@@ -14,8 +16,9 @@ hourly.default <- function(x) {
 ##' @method hourly cumulative
 hourly.cumulative <- function(x) {
   ## Find the first and last time we can interpolate from
-  from <- trunc(min(x$time), units="hours") + 3600
-  to <- trunc(max(x$time), units="hours")
+  from <- as.POSIXlt(attr(x, "from"))
+  to <- as.POSIXlt(attr(x, "to"))
+
   ## Bin into hourly chunks
   times <- seq.POSIXt(from, to, by="1 hour")
   dat <- approx(x$time, x$cumkwh, times)
