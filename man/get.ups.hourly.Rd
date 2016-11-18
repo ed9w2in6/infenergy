@@ -4,7 +4,8 @@
 \alias{get.ups.hourly}
 \title{Get hourly data from the Informatics UPS logs}
 \usage{
-get.ups.hourly(from, to, upss = c("forumA", "forumB"), ...)
+get.ups.hourly(from, to, upss = c("forumA", "forumB"),
+  infer.missing.data = TRUE, ...)
 }
 \arguments{
 \item{from}{Date from which to collect data}
@@ -13,12 +14,16 @@ get.ups.hourly(from, to, upss = c("forumA", "forumB"), ...)
 
 \item{upss}{Vector of UPSs from which to collect data}
 
+\item{infer.missing.data}{If one UPS in upss returns NA and the
+other doesn't try to infer the value of the missing UPS by
+assuming it is the same as the functioning UPS.}
+
 \item{...}{Arguments passed to \code{\link{get.single.ups.hourly}}}
 }
 \value{
 Data frame with columns \code{Time} (the centre of the
-time period) and \code{kWh} (energy use in kWh in the hour
-centred on \code{Time})
+  time period) and \code{kWh} (energy use in kWh in the hour
+  centred on \code{Time})
 }
 \author{
 David Sterratt

@@ -270,14 +270,19 @@ get.single.ups.hourly <- function(from, to,
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
 ##' @param upss Vector of UPSs from which to collect data
+##' @param infer.missing.data If one UPS in upss returns NA and the
+##'   other doesn't try to infer the value of the missing UPS by
+##'   assuming it is the same as the functioning UPS.
 ##' @param ... Arguments passed to \code{\link{get.single.ups.hourly}}
 ##' @return Data frame with columns \code{Time} (the centre of the
-##' time period) and \code{kWh} (energy use in kWh in the hour
-##' centred on \code{Time})
+##'   time period) and \code{kWh} (energy use in kWh in the hour
+##'   centred on \code{Time})
 ##' @author David Sterratt
 ##' @export
 get.ups.hourly <- function(from, to,
-                           upss=c("forumA", "forumB"), ...) {
+                           upss=c("forumA", "forumB"),
+                           infer.missing.data=TRUE,
+                           ...) {
 
   dat <-  get.single.ups.hourly(from, to, upss[1], ...)
   for (ups in upss[-1]) {
@@ -285,14 +290,17 @@ get.ups.hourly <- function(from, to,
     dat <- cbind(dat, d$kWh)
   }
   kWh <- dat[,-1,drop=FALSE]
-  if (any(is.na(dat))) {
-    warning("Values being inferred")
-    if (any(na.omit(diff(apply(kWh , 1, range))/rowSums(kWh)) > 0.01)) {
-      stop("Data are not consistent enough for inference")
+  if (infer.missing.data) {
+    if (any(is.na(dat))) {
+      warning("Values being inferred")
+      if (any(na.omit(diff(apply(kWh , 1, range))/rowSums(kWh)) > 0.01)) {
+        stop("Data are not consistent enough for inference")
+      }
     }
+    ad <- data.frame(Time=dat[,1], kWh=rowMeans(kWh, na.rm=TRUE)*length(upss))
+  } else {
+    ad <- data.frame(Time=dat[,1], kWh=rowSums(kWh, na.rm=TRUE))
   }
-  ad <- dat[,1]
-  ad <- data.frame(Time=dat[,1], kWh=rowMeans(kWh, na.rm=TRUE)*length(upss))
   ## rowMeans(cbind(NA, NA)) == NaN !!
   ad$kWh[is.nan(ad$kWh)] <- NA
   ## ad <- aggregate(kWh ~ Time, data=dat, FUN=sum)
