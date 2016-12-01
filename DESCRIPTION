@@ -1,4 +1,4 @@
-Copyright: 2015 David Sterratt
+Copyright: 2015, 2016 David Sterratt
 Package: infenergy
 Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 License: GPL2
@@ -13,6 +13,6 @@ Depends:
     RPostgreSQL
 Imports:
     DBI,
-    dplyr
+    plyr
 LazyLoad: No
 RoxygenNote: 5.0.1

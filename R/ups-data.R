@@ -194,29 +194,29 @@ get.single.ups <- function(from, to, ups="forumA", method="db", power.factor=1, 
   }
   
   ## Compute apparent power in VA - current is in dA; voltage is V
-  d <- dplyr::mutate(d, L1S=L1V*L1I/10)
-  d <- dplyr::mutate(d, L2S=L2V*L2I/10)
-  d <- dplyr::mutate(d, L3S=L3V*L3I/10)
+  d <- plyr::mutate(d, L1S=L1V*L1I/10)
+  d <- plyr::mutate(d, L2S=L2V*L2I/10)
+  d <- plyr::mutate(d, L3S=L3V*L3I/10)
 
   if (is.na(power.factor)) {
     ## Compute power factor
-    d <- dplyr::mutate(d, L1PF=L1P/L1S)
-    d <- dplyr::mutate(d, L2PF=L2P/L2S)
-    d <- dplyr::mutate(d, L3PF=L3P/L3S)
+    d <- plyr::mutate(d, L1PF=L1P/L1S)
+    d <- plyr::mutate(d, L2PF=L2P/L2S)
+    d <- plyr::mutate(d, L3PF=L3P/L3S)
   } else {
     ## Set power factor
-    d <- dplyr::mutate(d, L1PF=power.factor)
-    d <- dplyr::mutate(d, L2PF=power.factor)
-    d <- dplyr::mutate(d, L3PF=power.factor)
+    d <- plyr::mutate(d, L1PF=power.factor)
+    d <- plyr::mutate(d, L2PF=power.factor)
+    d <- plyr::mutate(d, L3PF=power.factor)
     ## Compute real power from apparent power
-    d <- dplyr::mutate(d, L1P=power.factor*L1S)
-    d <- dplyr::mutate(d, L2P=power.factor*L2S)
-    d <- dplyr::mutate(d, L3P=power.factor*L3S)
+    d <- plyr::mutate(d, L1P=power.factor*L1S)
+    d <- plyr::mutate(d, L2P=power.factor*L2S)
+    d <- plyr::mutate(d, L3P=power.factor*L3S)
   }
     
   ## Compute power from the the voltage and current in each of the
   ## three phases - current is in dA, voltage is V
-  d <- dplyr::mutate(d, P.kW = (L1P + L2P + L3P)/1000)
+  d <- plyr::mutate(d, P.kW = (L1P + L2P + L3P)/1000)
 
   return(d)
 }
