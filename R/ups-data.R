@@ -192,6 +192,10 @@ get.single.ups <- function(from, to, ups="forumA", method="db", power.factor=1, 
   } else {
     d <- get.single.ups.file(from, to, ups=ups, ...)
   }
+  if (nrow(d) == 0) {
+    warning(paste("No data from", ups))
+    return(d)
+  }
   
   ## Compute apparent power in VA - current is in dA; voltage is V
   d <- plyr::mutate(d, L1S=L1V*L1I/10)
