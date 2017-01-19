@@ -30,22 +30,29 @@ get.single.ups.file.one.day <- function(date, ups="forumA", cache=TRUE) {
     ## Otherwise, get data from system
     base.url <- "http://netmon.inf.ed.ac.uk/raw-UPS"
     year <- strftime(date, "%Y")
+    con <- NULL
     if (year != strftime(Sys.time(), "%Y")) {
-      base.url <- file.path(base.url, year)
-      file <- file.path(base.url,
+      file <- file.path(file.path(base.url, year),
                         paste(ups, "_power.raw.",
                               strftime(date, "%F"),
                               ".gz", sep=""))
-      message(file)
+      message(paste("Trying", file))
       tfile <- tempfile()
-      download.file(file, tfile)
-      con <- gzfile(tfile)
-    } else {
+      ec <- tryCatch(download.file(file, tfile),
+                     error=function(e) {
+                       message(paste(file, "does not exist"))
+                       return(1)
+                     })
+      if (ec == 0) {
+        con <- gzfile(tfile)
+      }
+    }
+    if (is.null(con)) {
       file <- file.path(base.url,
                         paste(ups, "_power.raw.",
                               strftime(date, "%F"),
                               sep=""))
-      message(file)
+      message(paste("Trying", file))
       con <- url(file)
     }
     dat <- NULL
