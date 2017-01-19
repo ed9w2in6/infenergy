@@ -321,10 +321,3 @@ get.ups.hourly <- function(from, to,
   return(ad)
 }
 
-## dat <- get.data("2011-07-07", "forumA", TRUE)
-## dat <- get.ups.hourly("2011-07-20", to="2011-07-25", ups="forumA")
-## png(file="forumA-sample.png", width=800, height=600)
-## plot.energy(dat)
-## dev.off()
-## #dat <- get.ups.hourly("2011-07-20", to="2011-09-09")
-
