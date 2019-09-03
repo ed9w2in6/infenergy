@@ -15,38 +15,40 @@
 ##' combine <- combine.data.hourly(list(Server=server, Forum=forum), tot=meter)
 ##' plot(combine)
 combine.data.hourly <- function(comps=list(), tot=NULL) {
-  dat <- data.frame(Time=comps[[1]][,"Time"])
-  if (inherits(tot, "hourly")) {
-    dat <- data.frame(Time=tot[,"Time"])
-    other <- tot$kWh
-  } else {
-    if (!is.null(tot)) {
-      stop("tot is not an hourly class")
-    }
-  }
+  if (!inherits(tot, "hourly") && !is.null(tot))
+    stop("tot is not an hourly class")
+
+  ## Rename kWh headings of total and components in preparation for
+  ## merging
+  tot <- plyr::rename(tot, c(kWh="Total"))
   for (n in names(comps)) {
-    comp <- comps[[n]]
-    if (!is.null(tot)) {
-      if (attr(comp, "from") != attr(tot, "from")) {
-        stop(paste("From date of ", n, "component doesn't match from date of total"))
-      }
-      if (attr(comp, "to") != attr(tot, "to")) {
-        stop(paste("To date of", n, "component doesn't match to date of total"))
-      }
-      other <- other - comp$kWh      
-    }
-    col <- data.frame(comp$kWh)
-    colnames(col) <- n
-    dat <- data.frame(dat, col)
+    comps[[n]] <- plyr::rename(comps[[n]], c(kWh=n))
   }
+
+  ## Merge components and total into one data frame
+  dat <- Reduce(function(dtf1, dtf2) merge(dtf1, dtf2, by = "Time", all.x = TRUE),
+                c(comps, list(tot)))
+
+  ## Create "Other" column
   if (!is.null(tot)) {
-    dat <- data.frame(dat, Other=other)
-    attr(dat, "from") <- attr(tot, "from")
-    attr(dat, "to")   <- attr(tot, "to")
-  } else  {
-    attr(dat, "from") <- attr(comps[[1]], "from")
-    attr(dat, "to")   <- attr(comps[[1]], "to")
+    dat$Other <- dat[,"Total"] - rowSums(dat[,names(comps)], na.rm=TRUE)
   }
+  dat$Total <- NULL
+
+  ## Remove NAs
+  dat[,names(comps)] <- apply(dat[,names(comps)], 2,
+                              function(x) { replace(x, is.na(x), 0) })
+
+  ## Set from and to attributes; conversions needed for compatability
+  from <- as.POSIXlt(as.character(
+    min(as.Date(sapply(c(comps, list(tot)),
+                       function(x) {as.character(attr(x, "from"))})))))
+  to <- as.POSIXlt(as.character(
+    max(as.Date(sapply(c(comps, list(tot)),
+                       function(x) {as.character(attr(x, "to"))})))))
+  attr(dat, "from") <- from
+  attr(dat, "to")   <- to
+  
   class(dat) <- c("hourly", "data.frame")
   return(dat)
 }
