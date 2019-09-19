@@ -16,7 +16,9 @@ dump.single.ups.to.db(from, to, ups = "forumA", dry.run = FALSE)
 \item{dry.run}{If \code{TRUE} do not dump data, but instead report
 on what owould be done}
 }
+\description{
+Dump UPS data to database
+}
 \author{
 David Sterratt
 }
-

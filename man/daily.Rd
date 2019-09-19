@@ -9,7 +9,9 @@ daily(x)
 \arguments{
 \item{x}{\code{cumulative}, \code{hourly} \&c object}
 }
+\description{
+Daily representation of data
+}
 \author{
 David Sterratt
 }
-

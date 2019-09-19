@@ -4,8 +4,8 @@
 \alias{get.single.ups}
 \title{Get data from a UPS}
 \usage{
-get.single.ups(from, to, ups = "forumA", method = "db", power.factor = 1,
-  ...)
+get.single.ups(from, to, ups = "forumA", method = "db",
+  power.factor = 1, ...)
 }
 \arguments{
 \item{from}{Date from which to collect data}
@@ -26,7 +26,9 @@ supplied by the UPS}
 \value{
 Table with columns \code{Time} and \code{kWh}
 }
+\description{
+Get data from a UPS
+}
 \author{
 David Sterratt
 }
-

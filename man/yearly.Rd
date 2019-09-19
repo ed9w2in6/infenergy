@@ -9,7 +9,9 @@ yearly(x)
 \arguments{
 \item{x}{\code{cumulative}, \code{hourly} \&c object}
 }
+\description{
+Yearly representation of data
+}
 \author{
 David Sterratt
 }
-

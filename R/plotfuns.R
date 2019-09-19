@@ -31,10 +31,13 @@ plot.energy <- function(dat, new=TRUE, ...) {
 ##' @param xlab X-axis label
 ##' @param ylab Y-axis label
 ##' @param col Vector of colours to plot each set of data.
+##' @param ylim Y limits
+##' @param stack If \code{TRUE}
+##' @param ... 
 ##' @author David Sterratt
 ##' @export
 stepplot <- function(x, y, xlab="Time", ylab="kW",
-                     col="white", ylim=NULL, ...) {
+                     col="white", ylim=NULL, stack=TRUE, ...) {
   ## Find breaks
   n <- length(x)
   ## Create extra centres
@@ -42,19 +45,31 @@ stepplot <- function(x, y, xlab="Time", ylab="kW",
   cents <- c(2*xv[1]-xv[2], xv, 2*xv[n]-xv[n-1])
   breaks <- (cents[-1]+cents[-length(cents)])/2
 
-  ## Find totals
-  yi <- apply(y, 2, sum)
-  if (is.null(ylim))
-    ylim=c(0, max(yi))
+  if (stack) {
+    ## Find totals
+    yi <- apply(y, 2, sum)
+    if (is.null(ylim))
+      ylim=c(0, max(yi))
+  } else {
+    if (is.null(ylim))
+      ylim=c(0, max(y))
+  }
+
   plot(NA, NA, xlim=range(x), ylim=ylim,
        xlab=xlab, ylab=ylab, ...)
 
   for (i in nrow(y):1) {
     xs <- as.vector(rbind(breaks, breaks))
+    if (!stack)
+      yi <- y[i,]
     ys <- as.vector(rbind(c(0, yi), c(yi, 0)))
-    polygon(xs, ys, col=col[i], border=NA)
-    lines(xs[-c(1, length(xs))], ys[-c(1,length(ys))])
-    yi <- yi - y[i,]
+    if (stack) {
+      polygon(xs, ys, col=col[i], border=NA)
+      lines(xs[-c(1, length(xs))], ys[-c(1,length(ys))])
+      yi <- yi - y[i,]
+    } else {
+      lines(xs[-c(1, length(xs))], ys[-c(1,length(ys))], col=col[i])
+    }
   }
 }
 
@@ -66,7 +81,7 @@ stepplot <- function(x, y, xlab="Time", ylab="kW",
 ##' @method plot hourly
 ##' @export
 plot.hourly <- function(dat, col=NULL,
-                        ylim=NULL, ylab="kW") {
+                        ylim=NULL, ylab="kW", stack=TRUE, main=NULL) {
   from <- attr(dat, "from")
   to <- attr(dat, "to")
   Time <- dat$Time
@@ -77,9 +92,14 @@ plot.hourly <- function(dat, col=NULL,
   }
   
   if (is.null(ylim))
-    ylim <- c(0, max(apply(dat, 2, sum, na.rm=TRUE)))
+    if (stack) 
+      ylim <- c(0, max(apply(dat, 2, sum, na.rm=TRUE)))
+    else
+      ylim <- c(0, max(dat, na.rm=TRUE))
+  if (is.null(main))
+    main <- paste(from, "to", to)
   stepplot(Time, dat, xaxt="n", col=col, ylim=ylim,
-           main=paste(from, "to", to), ylab=ylab)
+           main=main, ylab=ylab, stack=stack)
   ## Prettier labels
   t0 <- as.POSIXlt(Time[1] - 30*60) 
   t1 <- as.POSIXlt(Time[length(Time)] + 30*60)
@@ -163,7 +183,6 @@ plot.weekly <- function(dat, col=NULL, ylim=NULL, month.bars=TRUE, year.bars=FAL
     t0 <- as.POSIXlt(Time[1]) 
     t1 <- as.POSIXlt(Time[length(Time)] + 24*60*60)
     locs <- as.POSIXct(unique(strftime(Time, "%Y-%m-01")))
-    print(locs)
     lines(rbind(locs, locs, NA), rep(c(ylim, NA), length(locs)))
     axis(1, at=locs, labels=NA)
     ## Positions for month labels

@@ -4,8 +4,8 @@
 \alias{stepplot}
 \title{Step plot}
 \usage{
-stepplot(x, y, xlab = "Time", ylab = "kW", col = "white", ylim = NULL,
-  ...)
+stepplot(x, y, xlab = "Time", ylab = "kW", col = "white",
+  ylim = NULL, stack = TRUE, ...)
 }
 \arguments{
 \item{x}{Centres of data}
@@ -18,8 +18,16 @@ data.}
 \item{ylab}{Y-axis label}
 
 \item{col}{Vector of colours to plot each set of data.}
+
+\item{ylim}{Y limits}
+
+\item{stack}{If \code{TRUE}}
+
+\item{...}{}
+}
+\description{
+Step plot
 }
 \author{
 David Sterratt
 }
-

@@ -25,7 +25,9 @@ Data frame with columns \code{Time} (the centre of the
   time period) and \code{kWh} (energy use in kWh in the hour
   centred on \code{Time})
 }
+\description{
+Get hourly data from the Informatics UPS logs
+}
 \author{
 David Sterratt
 }
-

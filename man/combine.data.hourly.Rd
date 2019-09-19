@@ -16,6 +16,9 @@ combine.data.hourly(comps = list(), tot = NULL)
 data frame with class \code{hourly} containing the
   components and the residual Other energy use
 }
+\description{
+Combine hourly data
+}
 \examples{
 from <- "2016-09-01"
 to <- "2016-09-08"
@@ -28,4 +31,3 @@ plot(combine)
 \author{
 David Sterratt
 }
-

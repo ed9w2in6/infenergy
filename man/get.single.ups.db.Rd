@@ -13,7 +13,9 @@ get.single.ups.db(from, to, ups = "forumA")
 
 \item{ups}{UPS from which to get data}
 }
+\description{
+Get data for a single UPS from database
+}
 \author{
 David Sterratt
 }
-

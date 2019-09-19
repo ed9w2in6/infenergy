@@ -20,7 +20,9 @@ get.single.ups.hourly(from, to, ups = "forumA", ...)
 Data frame containing the columns \code{Time} of centre of
   interval, \code{kWh} energy used in that interval in kWh.
 }
+\description{
+Get data in hourly chunks from an informatics UPS log.
+}
 \author{
 David Sterratt
 }
-

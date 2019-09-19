@@ -13,7 +13,9 @@ hourly(x)
 Object with hourly bins starting from "to" attribute of
   \code{x} and ending with "from" attribute of \code{x}
 }
+\description{
+Hourly representation of data
+}
 \author{
 David Sterratt
 }
-

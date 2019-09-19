@@ -14,7 +14,9 @@
 
 \item{ylim}{Specify ylim}
 }
+\description{
+Plot energy data daily
+}
 \author{
 David Sterratt
 }
-

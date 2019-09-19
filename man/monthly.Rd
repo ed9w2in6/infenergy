@@ -9,7 +9,9 @@ monthly(x)
 \arguments{
 \item{x}{\code{cumulative}, \code{hourly} \&c object}
 }
+\description{
+Monthly representation of data
+}
 \author{
 David Sterratt
 }
-

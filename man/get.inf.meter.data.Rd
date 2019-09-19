@@ -18,6 +18,9 @@ time in kWh. To allow conversion to hourly and daily formats there
 will be one measurement just before the \code{from} date and one
 just after the {to} date.
 }
+\description{
+Get raw cumulative data from the Informatics Forum electricity meter
+}
 \examples{
 res <- get.inf.meter.data("2014-04-30", "2014-05-01")
 with(res, plot(time[-1], diff(cumkwh), type="l"))
@@ -25,4 +28,3 @@ with(res, plot(time[-1], diff(cumkwh), type="l"))
 \author{
 David Sterratt
 }
-

@@ -4,7 +4,8 @@
 \alias{plot.hourly}
 \title{Plot energy data hourly}
 \usage{
-\method{plot}{hourly}(dat, col = NULL, ylim = NULL, ylab = "kW")
+\method{plot}{hourly}(dat, col = NULL, ylim = NULL, ylab = "kW",
+  stack = TRUE, main = NULL)
 }
 \arguments{
 \item{dat}{Data frame of hourly data with first column containing Time}
@@ -13,7 +14,9 @@
 
 \item{ylim}{Specify ylim}
 }
+\description{
+Plot energy data hourly
+}
 \author{
 David Sterratt
 }
-

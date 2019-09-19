@@ -16,7 +16,9 @@ Data frame with columns \code{Time} (the centre of the
 time period) and \code{kWh} (energy use in kWh in the half hour
 centred on \code{Time})
 }
+\description{
+Get half-hourly data from the University Energy Office's data files
+}
 \author{
 David Sterratt
 }
-
