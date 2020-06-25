@@ -1,7 +1,8 @@
 # infenergy
 Informatics energy R package
 
-> edit: This is a personal fork (i.e. still public!).  Modified to connect to a local PostgreSQL server instead.
+> edit: This is a private fork (**_Please Made sure this is true!_**).
+> Modified to connect to a local PostgreSQL server instead.
 
 # Installation
 
