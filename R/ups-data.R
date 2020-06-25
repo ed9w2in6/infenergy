@@ -18,9 +18,9 @@ get.single.ups.file.one.day <- function(date, ups="forumA", cache=TRUE) {
     return(NULL)
   }
 
-  if (!file.exists(cachedir)) 
+  if (!file.exists(cachedir))
     dir.create(cachedir)
-  
+
   ## Read from cache - if it exists
   cachefile <- file.path(cachedir,
                          paste(ups, "_raw_", strftime(date, "%F"), ".csv", sep=""))
@@ -62,7 +62,7 @@ get.single.ups.file.one.day <- function(date, ups="forumA", cache=TRUE) {
                       return(NULL)
                     },
                     warning=function(w) {})
-    
+
     if (is.null(dat)) {
       warning(paste("Could not read", ups, "data from", date))
       return(blank.data(date))
@@ -82,7 +82,7 @@ get.single.ups.file.one.day <- function(date, ups="forumA", cache=TRUE) {
   return(dat)
 }
 
-##' @title Get  data from a single UPS from Netmon logfiles 
+##' @title Get  data from a single UPS from Netmon logfiles
 ##' @author David Sterratt
 ##' @param from Date from which to collect data
 ##' @param to Date to which to collect data
@@ -118,7 +118,7 @@ dump.single.ups.to.db <- function(from, to, ups="forumA", dry.run=FALSE) {
   dates <- as.list(seq.Date(as.Date(trunc(as.POSIXlt(from + 1, tz="GMT"), "day")),
                             to=as.Date(to), by=1))
   drv <- DBI::dbDriver("PostgreSQL")
-  con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
+  con <-DBI::dbConnect(drv, user="postgres", dbname="UOE", host="localhost")
   tabname <- "forum_ups"
   for (d in dates) {
     ## Get data from file
@@ -166,7 +166,7 @@ dump.single.ups.to.db <- function(from, to, ups="forumA", dry.run=FALSE) {
 ##' @export
 get.single.ups.db <- function(from, to, ups="forumA") {
   drv <- DBI::dbDriver("PostgreSQL")
-  con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
+  con <-DBI::dbConnect(drv, user="postgres", dbname="UOE", host="localhost")
   d <- DBI::dbGetQuery(con, paste0("SELECT * FROM forum_ups",
                                    " WHERE \"Time\" > '", format(from, usetz=TRUE), "'",
                                    " AND   \"Time\" < '", format(to  , usetz=TRUE), "'",
@@ -203,7 +203,7 @@ get.single.ups <- function(from, to, ups="forumA", method="db", power.factor=1, 
     warning(paste("No data from", ups))
     return(d)
   }
-  
+
   ## Compute apparent power in VA - current is in dA; voltage is V
   d <- plyr::mutate(d, L1S=L1V*L1I/10)
   d <- plyr::mutate(d, L2S=L2V*L2I/10)
@@ -224,7 +224,7 @@ get.single.ups <- function(from, to, ups="forumA", method="db", power.factor=1, 
     d <- plyr::mutate(d, L2P=power.factor*L2S)
     d <- plyr::mutate(d, L3P=power.factor*L3S)
   }
-    
+
   ## Compute power from the the voltage and current in each of the
   ## three phases - current is in dA, voltage is V
   d <- plyr::mutate(d, P.kW = (L1P + L2P + L3P)/1000)
@@ -246,7 +246,7 @@ get.single.ups.hourly <- function(from, to,
                                            ups="forumA", ...) {
   ## Get the data
   d <- get.single.ups(from, to, ups, ...)
-    
+
 
   ## Create bins in which to aggregate the data
   if (nrow(d) > 0) {
@@ -320,4 +320,3 @@ get.ups.hourly <- function(from, to,
   class(ad) <- c("hourly", "data.frame")
   return(ad)
 }
-

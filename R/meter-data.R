@@ -16,12 +16,12 @@ get.inf.meter.data <- function(from, to) {
   # boundaries in GMT or BST, depending on the season
   from <- as.POSIXlt(from)
   to <- as.POSIXlt(to)
-  
+
   ## Set offset to get readings within an hour of either side
   offsets <- c(3600, 24*3600, 30*24*3600)
   ## Get data
   drv <- DBI::dbDriver("PostgreSQL")
-  con <-DBI::dbConnect(drv, user="sterratt", password="PowerScript", dbname="sterratt", host="pgresearch")
+  con <-DBI::dbConnect(drv, user="postgres", dbname="UOE", host="localhost")
   inds <- c(0, 0)
   i <- 1
   tmin <- DBI::dbGetQuery(con, "SELECT MIN(time) FROM forum_electricity;")$min
@@ -61,4 +61,3 @@ get.inf.meter.data <- function(from, to) {
   class(res) <- c("cumulative", class(res))
   return(res)
 }
-
