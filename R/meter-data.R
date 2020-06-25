@@ -14,8 +14,8 @@
 get.inf.meter.data <- function(from, to) {
   # Convert to POSIX times. This will give times that are a the date
   # boundaries in GMT or BST, depending on the season
-  from <- as.POSIXlt(from)
-  to <- as.POSIXlt(to)
+  from <- as.POSIXlt(from, tz='GMT')
+  to <- as.POSIXlt(to, tz='GMT')
 
   ## Set offset to get readings within an hour of either side
   offsets <- c(3600, 24*3600, 30*24*3600)

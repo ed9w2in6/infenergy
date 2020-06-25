@@ -191,8 +191,8 @@ get.single.ups.db <- function(from, to, ups="forumA") {
 ##' @author David Sterratt
 ##' @export
 get.single.ups <- function(from, to, ups="forumA", method="db", power.factor=1, ...) {
-  from <- as.POSIXlt(from)
-  to <- as.POSIXlt(to)
+  from <- as.POSIXlt(from, tz='GMT')
+  to <- as.POSIXlt(to, tz='GMT')
 
   if (method=="db") {
     d <- get.single.ups.db(from, to, ups=ups)
