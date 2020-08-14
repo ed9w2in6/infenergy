@@ -42,10 +42,10 @@ combine.data.hourly <- function(comps=list(), tot=NULL) {
   ## Set from and to attributes; conversions needed for compatability
   from <- as.POSIXlt(as.character(
     min(as.Date(sapply(c(comps, list(tot)),
-                       function(x) {as.character(attr(x, "from"))})))))
+                       function(x) {as.character(attr(x, "from"))})))), tz='GMT')
   to <- as.POSIXlt(as.character(
     max(as.Date(sapply(c(comps, list(tot)),
-                       function(x) {as.character(attr(x, "to"))})))))
+                       function(x) {as.character(attr(x, "to"))})))), tz='GMT')
   attr(dat, "from") <- from
   attr(dat, "to")   <- to
   
