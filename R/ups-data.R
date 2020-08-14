@@ -113,7 +113,7 @@ get.single.ups.file <- function(from, to, ups="forumA", cache=TRUE) {
 ##'   on what owould be done
 ##' @export
 dump.single.ups.to.db <- function(from, to, ups="forumA", dry.run=FALSE) {
-  from <- as.POSIXlt(from)
+  from <- as.POSIXlt(from, tz='GMT')
   ## Create list of dates from which to get data.
   dates <- as.list(seq.Date(as.Date(trunc(as.POSIXlt(from + 1, tz="GMT"), "day")),
                             to=as.Date(to), by=1))
@@ -265,8 +265,8 @@ get.single.ups.hourly <- function(from, to,
   ## print(levels(bins))
   ## print(d$Time)
   ## Bin into hourly chunks
-  times <- seq.POSIXt(as.POSIXlt(from),
-                      to=as.POSIXlt(to)-1800, by="1 hour")
+  times <- seq.POSIXt(as.POSIXlt(from, tz='GMT'),
+                      to=as.POSIXlt(to, tz='GMT')-1800, by="1 hour")
 
   missing.times <- as.POSIXct(setdiff(as.POSIXct(times, tz="GMT"), d$Time),
                               origin=as.POSIXct("1970-01-01", tz="GMT"), tz="GMT")
