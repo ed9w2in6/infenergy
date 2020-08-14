@@ -7,8 +7,8 @@
 ##' @author David Sterratt
 ##' @export
 get.uni.half.hourly.data <- function(from, to) {
-  from <- as.POSIXlt(from)
-  to <- as.POSIXlt(to)
+  from <- as.POSIXlt(from, tz="GMT")
+  to <- as.POSIXlt(to, tz="GMT")
 
   files <- list.files("/home/sterratt/admin/inf-energy/data/uni-hh/", "\\.csv$",
                       full.names=TRUE)
