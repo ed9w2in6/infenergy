@@ -1,7 +1,8 @@
 # infenergy
 Informatics energy R package
 
-> edit: This is a private fork (**_Please Make sure this is true!_**).
+> ~edit: This is a private fork (**_Please Make sure this is true!_**).~
+> forked from: [davidcsterratt/infenergy](https://github.com/davidcsterratt/infenergy)
 
 # modified 
 
