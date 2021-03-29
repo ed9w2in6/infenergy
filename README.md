@@ -42,7 +42,7 @@ And thus this function can only be used at DICE
 2. Type the following:
 
 ```R
-install.packages("devtools")
+# run `install.packages("devtools")` if `devtools` is not installed.
 library(devtools)
 install_github("ed9w2in6/infenergy")
 library(infenergy)
